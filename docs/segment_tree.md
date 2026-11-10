@@ -16,7 +16,23 @@ int main() {
 }
 ```
 
-`Segment_tree<T>` defaults to `Segment_tree<T, zkw>`. The tag selects an independent implementation at compile time. Use only the methods provided by that tag.
+## Template parameters and namespace
+
+The public type is `zz_library::Segment_tree<T, Type>`. `T` is the value and aggregate type (for example, `long long`); `Type` is a tag that chooses which implementation backs the tree. The second parameter is optional: `Segment_tree<T>` means `Segment_tree<T, zkw>`.
+
+Both the class and its implementation tags live in the `zz_library` namespace. Either qualify both names, as in `zz_library::Segment_tree<long long, zz_library::lazy>`, or import the names you use with a `using` declaration. The include header must provide the selected tag; umbrella headers provide all tags, while a direct header such as `<seg_tree/zkw>` provides that implementation.
+
+| Type tag | Implementation |
+| --- | --- |
+| `zkw` | Fixed-size sequence tree; the default. |
+| `lazy` | Dynamic tree over `[0, 1,000,000,000]`. |
+| `domain` | Dynamic tree over a configured coordinate interval. |
+| `persistent` | Branchable versions of a sequence tree. |
+| `kth` | Static order statistics and mex. |
+| `tree2d` | Dynamic 2D point values. |
+| `beats` | Segment Tree Beats. |
+
+The tag is a compile-time choice, not a runtime setting. Each tag exposes its own operation set, so call only methods documented for the selected implementation.
 
 ## Shared conventions
 
@@ -152,16 +168,21 @@ This type tracks current extrema, not historical extrema. `second_min` and `seco
 
 `chmin` and `chmax` are not guaranteed `O(log n)` per call; their complexity is amortized over an operation sequence. Storage is `O(n)`.
 
-## Example: choosing and using a tag
+## Example: default and explicit tag
 
 ```cpp
 #include <bits/stdc++.h>
 #include <magic_tree>
 
 int main() {
-    zz_library::Segment_tree<long long> seg; // zkw by default
-    seg.init({3, 1, 4, 1});
-    seg.update(1, 2, 5);
-    long long answer = seg.query_sum(0, 3);
+    // Omitting Type selects zkw.
+    zz_library::Segment_tree<long long> fixed;
+    fixed.init({3, 1, 4, 1});
+
+    // The second template argument selects another implementation.
+    zz_library::Segment_tree<long long, zz_library::lazy> dynamic;
+    dynamic.init({3, 1, 4, 1});
+    dynamic.update(1, 2, 5);
+    long long answer = dynamic.query_sum(0, 3);
 }
 ```
