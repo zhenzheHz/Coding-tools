@@ -99,9 +99,11 @@ ccb A.cpp > A_precompiled.cpp
 
 ## Documentation
 
-Documentation files will be added under [`docs/`](docs/) as they are written.
+Library documentation is available in Markdown:
 
-- Markdown guides (`.md`) for shell commands and library components.
-- PDF references (`.pdf`) for printable or consolidated documentation.
+- [Fenwick Tree](docs/fenwick_tree.md)
+- [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
+
+Printable PDF references may be added under [`docs/`](docs/) separately.
 
 See [README_TW.md](README_TW.md) for Traditional Chinese.

@@ -99,9 +99,11 @@ ccb A.cpp > A_precompiled.cpp
 
 ## 文件 Documentation
 
-說明文件之後會放在 [`docs/`](docs/) 目錄：
+Library 說明文件（Markdown）：
 
-- Markdown 文件（`.md`）：shell 指令與 library 元件說明。
-- PDF 文件（`.pdf`）：適合列印或整合查閱的參考資料。
+- [Fenwick Tree](docs/fenwick_tree.md)
+- [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)
+
+適合列印的 PDF 參考資料之後可能會另外放在 [`docs/`](docs/) 目錄。
 
 英文版請參考 [README.md](README.md)。

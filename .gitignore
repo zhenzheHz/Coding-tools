@@ -7,3 +7,4 @@
 *.header.tmp
 .ccb.*
 /library/testlib.h
+/docs/*.pdf
