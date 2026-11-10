@@ -7,7 +7,7 @@ RESET='\033[0m'
 if [ -t 1 ]; then COLOR=1; else COLOR=0; fi
 status() {
     if [ "$COLOR" = 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
-    else printf '> %s\n' "$1"; fi
+    else printf '> %s\n' "$1" >&2; fi
 }
 if (( $# > 1 )); then status 'Usage: ccb [file.cpp]' "$ORANGE"; exit 1; fi
 if (( $# == 1 )); then filename=$1
@@ -54,6 +54,11 @@ fi
     cat "$filename"
     printf '\n*/\n'
 } > "$result"
+if [ ! -t 1 ]; then
+    cat "$result"
+    status 'Precompiled source written to stdout.' "$ORANGE"
+    exit 0
+fi
 if command -v pbcopy >/dev/null 2>&1; then
     pbcopy < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
 elif command -v wl-copy >/dev/null 2>&1; then
