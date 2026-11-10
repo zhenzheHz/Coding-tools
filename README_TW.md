@@ -5,7 +5,7 @@
     <img alt="Bash" src="https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnubash&logoColor=white">
     <img alt="C++17" src="https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white">
   </p>
-  <p>繁體中文 | <a href="README.md">English</a></p>
+  <p><a href="README_TW.md">繁體中文</a> | <a href="README.md">English</a></p>
 </div>
 
 ---
@@ -19,20 +19,18 @@ Coding Tools 提供一組簡短的終端機指令，協助處理競程常見流�
 - 預處理 C++ 程式碼；系統有剪貼簿工具時可直接複製結果。
 - 建立編號 input/output 測資，並比對程式輸出。
 
-## Installation
+## 安裝 Installation
 
-### 系統需求
+### macOS
 
-- Bash，以及支援 `bits/stdc++.h` 的 C++ 編譯器。
-- macOS：`PATH` 中需有 `g++-16`（例如由 Homebrew GCC 提供）。
-- Linux：`PATH` 中需有 `g++-16` 或 `g++`。
-- Windows：使用 Git Bash，並安裝 MinGW GCC；可使用 Code::Blocks 內附版本或已加入 `PATH` 的 MinGW。PowerShell 和命令提示字元不支援。
+安裝 Homebrew GCC，並確認 `PATH` 中可以找到 `g++-16`：
 
-`rr` 也支援 `.c` 檔；安裝程式會偵測可用的 C 編譯器。
+```sh
+brew install gcc
+command -v g++-16
+```
 
-Windows Git Bash 支援已加入，但尚未在 Windows 主機上驗證。
-
-### 安裝方式
+接著 clone 專案並執行安裝程式：
 
 ```sh
 git clone https://github.com/zhenzheHz/Coding-tools.git
@@ -40,7 +38,40 @@ cd Coding-tools
 bash install.sh
 ```
 
-安裝程式會詢問要寫入程式標頭的作者姓名，並將指令路徑與專案路徑加入 Bash 或 Zsh 的啟動設定檔。完成後請重開終端機，或載入安裝程式提示的設定檔。
+### Linux
+
+使用發行版的套件管理工具安裝 GCC。安裝程式會優先使用 `g++-16`，若找不到則使用 `g++`；編譯器需支援 `bits/stdc++.h`。
+
+Debian 或 Ubuntu 可使用：
+
+```sh
+sudo apt update
+sudo apt install g++
+```
+
+接著 clone 專案並執行安裝程式：
+
+```sh
+git clone https://github.com/zhenzheHz/Coding-tools.git
+cd Coding-tools
+bash install.sh
+```
+
+### Windows（Git Bash）
+
+請先安裝 Git for Windows 和 MinGW GCC。安裝程式會搜尋常見位置的 Code::Blocks 內附 MinGW，也可使用已加入 Git Bash `PATH` 的 MinGW。PowerShell 和命令提示字元不支援。
+
+開啟 Git Bash，clone 專案並執行安裝程式：
+
+```sh
+git clone https://github.com/zhenzheHz/Coding-tools.git
+cd Coding-tools
+bash install.sh
+```
+
+Windows Git Bash 支援已加入，但尚未在 Windows 主機上驗證。
+
+所有平台的安裝程式都會詢問要寫入程式標頭的作者姓名，並將指令路徑與專案路徑加入 shell 啟動設定檔。完成後請重開終端機，或載入安裝程式提示的設定檔。安裝程式也會偵測 C 編譯器，供 `rr` 選擇性編譯 `.c` 檔使用。
 
 ## 指令
 
@@ -66,14 +97,11 @@ ccb A.cpp > A_precompiled.cpp
 
 `mkt` 會建立 `A_test01.in` 和 `A_test01.out`，之後自動遞增編號。`sb` 會顯示如 `01 > Accepted.` 的結果。
 
-## Documentation
+## 文件 Documentation
 
-| 路徑 | 內容 |
-| --- | --- |
-| [`shell/`](shell/) | Bash 指令實作。 |
-| [`library/`](library/) | 可重複使用的 C++ 標頭與程式片段。 |
-| [`library/seg_tree/`](library/seg_tree/) | 線段樹實作。 |
-| [`library/default_code.cpp`](library/default_code.cpp) | `mkcpp` 使用的程式範本。 |
-| [`install.sh`](install.sh) | 環境與指令路徑設定。 |
+說明文件之後會放在 [`docs/`](docs/) 目錄：
+
+- Markdown 文件（`.md`）：shell 指令與 library 元件說明。
+- PDF 文件（`.pdf`）：適合列印或整合查閱的參考資料。
 
 英文版請參考 [README.md](README.md)。

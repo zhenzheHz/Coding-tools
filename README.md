@@ -5,7 +5,7 @@
     <img alt="Bash" src="https://img.shields.io/badge/Shell-Bash-4EAA25?logo=gnubash&logoColor=white">
     <img alt="C++17" src="https://img.shields.io/badge/C%2B%2B-17-00599C?logo=cplusplus&logoColor=white">
   </p>
-  <p><a href="README_TW.md">繁體中文</a> | English</p>
+  <p><a href="README_TW.md">繁體中文</a> | <a href="README.md">English</a></p>
 </div>
 
 ---
@@ -21,18 +21,16 @@ Coding Tools provides short terminal commands for the everyday competitive progr
 
 ## Installation
 
-### Requirements
+### macOS
 
-- Bash and a C++ compiler with `bits/stdc++.h` support.
-- macOS: `g++-16` available in `PATH` (for example, from Homebrew GCC).
-- Linux: `g++-16` or `g++` available in `PATH`.
-- Windows: Git Bash and MinGW GCC, either bundled with Code::Blocks or available in `PATH`. PowerShell and Command Prompt are not supported.
+Install Homebrew GCC and make sure `g++-16` is available in `PATH`:
 
-The installer also detects a C compiler for the optional `.c` support in `rr`.
+```sh
+brew install gcc
+command -v g++-16
+```
 
-Windows Git Bash support is implemented but has not yet been verified on a Windows host.
-
-### Install
+Then clone the project and run the installer:
 
 ```sh
 git clone https://github.com/zhenzheHz/Coding-tools.git
@@ -40,7 +38,40 @@ cd Coding-tools
 bash install.sh
 ```
 
-The installer asks for the author name used in generated source headers. It then adds the command directory and project paths to the Bash or Zsh startup file. Restart the terminal, or source the startup file named by the installer.
+### Linux
+
+Install GCC with your distribution's package manager. The installer prefers `g++-16` and falls back to `g++`; the compiler must support `bits/stdc++.h`.
+
+For Debian or Ubuntu:
+
+```sh
+sudo apt update
+sudo apt install g++
+```
+
+Then clone the project and run the installer:
+
+```sh
+git clone https://github.com/zhenzheHz/Coding-tools.git
+cd Coding-tools
+bash install.sh
+```
+
+### Windows (Git Bash)
+
+Install Git for Windows and a MinGW GCC toolchain. The installer can find MinGW bundled with Code::Blocks in common installation locations, or use MinGW available in Git Bash's `PATH`. PowerShell and Command Prompt are not supported.
+
+Open Git Bash, then clone the project and run the installer:
+
+```sh
+git clone https://github.com/zhenzheHz/Coding-tools.git
+cd Coding-tools
+bash install.sh
+```
+
+Windows Git Bash support is implemented but has not yet been verified on a Windows host.
+
+On all platforms, the installer asks for the author name used in generated source headers and adds the command directory and project paths to the shell startup file. Restart the terminal, or source the startup file named by the installer. It also detects a C compiler for the optional `.c` support in `rr`.
 
 ## Commands
 
@@ -68,12 +99,9 @@ ccb A.cpp > A_precompiled.cpp
 
 ## Documentation
 
-| Path | Contents |
-| --- | --- |
-| [`shell/`](shell/) | Bash command implementations. |
-| [`library/`](library/) | Reusable C++ headers and snippets. |
-| [`library/seg_tree/`](library/seg_tree/) | Segment tree implementations. |
-| [`library/default_code.cpp`](library/default_code.cpp) | Starter source copied by `mkcpp`. |
-| [`install.sh`](install.sh) | Environment and command-path setup. |
+Documentation files will be added under [`docs/`](docs/) as they are written.
+
+- Markdown guides (`.md`) for shell commands and library components.
+- PDF references (`.pdf`) for printable or consolidated documentation.
 
 See [README_TW.md](README_TW.md) for Traditional Chinese.
