@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Print the shared author and timestamp header used by generated C++ files.
+set -euo pipefail
+prefix=${1:-//}
+author=${CP_AUTHOR:-${USER:-unknown}}
+printf '%s Author : %s\n' "$prefix" "$author"
+if [[ ${2:-} == c ]]; then label='Pre-compiled : '; else label=''; fi
+printf '%s %s%s\n' "$prefix" "$label" "$(LC_ALL=C date '+%Y/%m/%d %a %H:%M:%S')"
+if (( $# > 1 )) && [[ $2 != c ]]; then printf '%s %s\n' "$prefix" "$2"; fi

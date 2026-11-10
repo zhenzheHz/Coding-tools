@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Interactively save one input/output test pair for the current source.
+set -euo pipefail
+ORANGE='\033[38;5;208m'
+GREEN='\033[1;32m'
+RESET='\033[0m'
+message() {
+    if [ -t 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
+    else printf '> %s\n' "$1"; fi
+}
+if (( $# > 1 )); then message 'Usage: mkt [test-number]' "$ORANGE"; exit 2; fi
+if [[ -f .cp-tools-current ]]; then IFS= read -r source_file < .cp-tools-current
+else message 'Run mkcpp first so the current source is known.' "$ORANGE"; exit 1; fi
+base=${source_file%.cpp}
+if (( $# )); then n=$1
+else
+    n=1
+    while [[ -e ${base}_t${n}.in || -e ${base}_t${n}.out ]]; do n=$((n+1)); done
+fi
+[[ $n =~ ^[1-9][0-9]*$ ]] || { message 'Test number must be a positive integer.' "$ORANGE"; exit 2; }
+infile=${base}_t${n}.in
+outfile=${base}_t${n}.out
+[[ ! -e $infile && ! -e $outfile ]] || { message "Test already exists: ${base}_t${n}" "$ORANGE"; exit 1; }
+message "File name : $base" "$ORANGE"
+printf '\n'
+message 'Input' "$ORANGE"
+printf '\n'
+cat > "$infile"
+printf '\n'
+message 'Output' "$ORANGE"
+printf '\n'
+cat > "$outfile"
+printf '\n'
+message 'Builded.' "$GREEN"

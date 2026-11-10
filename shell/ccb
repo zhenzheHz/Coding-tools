@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# Expand a C++ source for an online judge and copy the result to the clipboard.
+set -o pipefail
+ORANGE='\033[38;5;208m'
+RED='\033[1;31m'
+RESET='\033[0m'
+if [ -t 1 ]; then COLOR=1; else COLOR=0; fi
+status() {
+    if [ "$COLOR" = 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
+    else printf '> %s\n' "$1"; fi
+}
+if (( $# > 1 )); then status 'Usage: ccb [file.cpp]' "$ORANGE"; exit 1; fi
+if (( $# == 1 )); then filename=$1
+elif [[ -f .cp-tools-current ]]; then IFS= read -r filename < .cp-tools-current
+else status 'Usage: ccb [file.cpp]' "$ORANGE"; exit 1; fi
+[[ $filename == *.cpp ]] || filename="$filename.cpp"
+if [[ ! -f $filename ]]; then status "No such file: $filename" "$RED"; exit 1; fi
+compiler=${CXX:-g++-16}
+if ! command -v "$compiler" >/dev/null 2>&1; then status "GCC 16 not found: $compiler" "$RED"; exit 1; fi
+srcdir=$(cd -- "$(dirname -- "$filename")" && pwd) || exit 1
+srcname=$(basename -- "$filename")
+library=${CP_LIBRARY:-$(cd "$(dirname "$0")" && pwd)/../library}
+include=${CP_INCLUDE:-$library}
+tmp=$(mktemp "$srcdir/.ccb.XXXXXX") || exit 1
+out=$(mktemp) || { rm -f "$tmp"; exit 1; }
+result=$(mktemp) || { rm -f "$tmp" "$out"; exit 1; }
+trap 'rm -f "$tmp" "$out" "$result"' EXIT HUP INT TERM
+extc=0
+atcoder=0
+if grep -Eq '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]bits/extc\+\+\.h[>"]' "$filename"; then extc=1; fi
+if grep -Eq '^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]atcoder/all[>"]' "$filename"; then atcoder=1; fi
+if ! {
+    printf '#line 1 "%s"\n' "$srcname"
+    sed -E '
+        /^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]bits\/(stdc\+\+|extc\+\+)\.h[>"]/s/^.*$/ /
+        /^[[:space:]]*#[[:space:]]*include[[:space:]]*[<"]atcoder\/all[>"]/s/^.*$/ /
+    ' "$filename"
+} > "$tmp"; then status 'Failed to prepare source.' "$RED"; exit 1; fi
+if ! "$compiler" -E -x c++ -DONLINE_JUDGE -I"$srcdir" -I"$library" -I"$include" "$tmp" > "$out"; then
+    status 'Preprocessing error.' "$RED"
+    exit 1
+fi
+{
+    printf '// Author : %s\n' "${CCB_AUTHOR:-${CP_AUTHOR:-zhenzhe}}"
+    printf '// Source : %s\n' "$filename"
+    printf '// Preprocessed : %s\n' "$(LC_TIME=C date '+%Y/%m/%d %a %H:%M:%S')"
+    printf '// Compiler : GCC %s\n' "$($compiler -dumpfullversion)"
+    printf '// Defines : ONLINE_JUDGE\n\n'
+    echo '#include<bits/stdc++.h>'
+    if [ "$extc" -eq 1 ]; then echo '#include<bits/extc++.h>'; fi
+    if [ "$atcoder" -eq 1 ]; then echo '#include<atcoder/all>'; fi
+    cat "$out"
+    printf '\n\n// > Original Code\n\n/*\n'
+    cat "$filename"
+    printf '\n*/\n'
+} > "$result"
+if command -v pbcopy >/dev/null 2>&1; then
+    pbcopy < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
+elif command -v wl-copy >/dev/null 2>&1; then
+    wl-copy < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
+elif command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
+elif command -v xsel >/dev/null 2>&1; then
+    xsel --clipboard --input < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
+else
+    cat "$result"
+    status 'No clipboard utility found; printed source above.' "$ORANGE"
+    exit 0
+fi
+status 'Copied Succesfully.' "$ORANGE"

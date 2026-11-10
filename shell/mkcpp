@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ORANGE='\033[38;5;208m'
+GREEN='\033[1;32m'
+RESET='\033[0m'
+message() {
+    if [ -t 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
+    else printf '> %s\n' "$1"; fi
+}
+if (( $# != 1 )); then message 'Usage: mkcpp <filename[.cpp]>' "$ORANGE"; exit 2; fi
+name=$1
+[[ $name == *.cpp ]] || name="$name.cpp"
+[[ ! -e $name ]] || { message "File already exists: $name" "$ORANGE"; exit 1; }
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+template=${CP_TEMPLATE:-${CP_LIBRARY:-$script_dir/../library}/default_code.cpp}
+[[ -f $template ]] || { message "Cannot find template: $template" "$ORANGE"; exit 1; }
+header=$(mktemp)
+trap 'rm -f "$header"' EXIT
+"$script_dir/codeheader" > "$header"
+cat "$header" "$template" > "$name"
+printf '%s\n' "$name" > .cp-tools-current
+message 'Builded.' "$GREEN"
+editor=${CODE_EDITOR:-${EDITOR:-code}}
+if command -v "$editor" >/dev/null 2>&1; then
+    "$editor" "$name" >/dev/null 2>&1 || true
+elif [[ $(uname -s) == Darwin ]] && command -v open >/dev/null 2>&1; then
+    open "$name" >/dev/null 2>&1 || true
+elif [[ $(uname -s) == Linux ]] && command -v xdg-open >/dev/null 2>&1; then
+    xdg-open "$name" >/dev/null 2>&1 || true
+fi

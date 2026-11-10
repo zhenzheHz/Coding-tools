@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# Run saved tests and print one verdict for each case.
+set -o pipefail
+GREEN='\033[1;32m'
+YELLOW='\033[1;33m'
+RED='\033[1;31m'
+ORANGE='\033[38;5;208m'
+RESET='\033[0m'
+if [ -t 1 ]; then COLOR=1; else COLOR=0; fi
+status() {
+    if [ "$COLOR" = 1 ]; then printf '%b%s%b\n' "$2" "$1" "$RESET"
+    else printf '%s\n' "$1"; fi
+}
+verdict() {
+    filename=$1
+    result=$2
+    color=$3
+    if [ "$COLOR" = 1 ]; then printf '%s %b> %s%b\n' "$filename" "$color" "$result" "$RESET"
+    else printf '%s > %s\n' "$filename" "$result"; fi
+}
+if (( $# > 1 )); then status '> Usage: sb [file.cpp]' "$ORANGE"; exit 2; fi
+if (( $# == 1 )); then source_file=$1
+elif [[ -f .cp-tools-current ]]; then IFS= read -r source_file < .cp-tools-current
+else status '> Usage: sb [file.cpp]' "$ORANGE"; exit 2; fi
+[[ $source_file == *.cpp ]] || source_file="$source_file.cpp"
+if [[ ! -f $source_file ]]; then status "$source_file > Complication error." "$RED"; exit 1; fi
+base=${source_file%.cpp}
+shopt -s nullglob
+inputs=( "${base}"_t*.in )
+if (( ${#inputs[@]} == 0 )); then status "> No test files for $source_file." "$ORANGE"; exit 1; fi
+cxx=${CXX:-g++-16}
+script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+include_dir=${CP_INCLUDE:-${CP_LIBRARY:-$script_dir/../library}}
+extra_flags=( ${GPP_ARGS:-} )
+exe=$(mktemp "${TMPDIR:-/tmp}/cp-test.XXXXXX") || exit 1
+actual=$(mktemp "${TMPDIR:-/tmp}/cp-actual.XXXXXX") || { rm -f "$exe"; exit 1; }
+compile_error=$(mktemp "${TMPDIR:-/tmp}/cp-compile-error.XXXXXX") || { rm -f "$exe" "$actual"; exit 1; }
+trap 'rm -f "$exe" "$actual" "$compile_error"' EXIT HUP INT TERM
+if ! "$cxx" -std=c++17 -O2 -Wall -Wextra -DLOCAL -I"$include_dir" "${extra_flags[@]}" "$source_file" -o "$exe" 2> "$compile_error"; then
+    for input_file in "${inputs[@]}"; do verdict "$(basename "$input_file")" 'Complication error.' "$RED"; done
+    cat "$compile_error" >&2
+    exit 1
+fi
+failed=0
+for input_file in "${inputs[@]}"; do
+    label=$(basename "$input_file")
+    expected=${input_file%.in}.out
+    if [[ ! -f $expected ]]; then verdict "$label" 'Wrong Answer.' "$RED"; failed=1; continue; fi
+    if ! "$exe" < "$input_file" > "$actual"; then verdict "$label" 'Runtime error.' "$RED"; failed=1; continue; fi
+    if diff -q "$expected" "$actual" >/dev/null; then
+        verdict "$label" 'Accepted.' "$GREEN"
+    else
+        verdict "$label" 'Wrong Answer.' "$RED"
+        printf '\n'
+        status '> ecpected output :' "$YELLOW"
+        cat "$expected"
+        printf '\n'
+        status '> output :' "$YELLOW"
+        cat "$actual"
+        printf '\n'
+        failed=1
+    fi
+done
+exit "$failed"

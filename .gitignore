@@ -1,0 +1,9 @@
+.DS_Store
+**/.DS_Store
+.cp-tools-current
+**/.cp-tools-current
+*_t*.in
+*_t*.out
+*.header.tmp
+.ccb.*
+/library/testlib.h
