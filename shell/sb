@@ -19,6 +19,10 @@ verdict() {
     if [ "$COLOR" = 1 ]; then printf '%s %b> %s%b\n' "$filename" "$color" "$result" "$RESET"
     else printf '%s > %s\n' "$filename" "$result"; fi
 }
+separator() {
+    if [ "$COLOR" = 1 ]; then printf '%b> ----- %b\n' "$RED" "$RESET"
+    else printf '> -----\n'; fi
+}
 if (( $# > 1 )); then status '> Usage: sb [file.cpp]' "$ORANGE"; exit 2; fi
 if (( $# == 1 )); then source_file=$1
 elif [[ -f .cp-tools-current ]]; then IFS= read -r source_file < .cp-tools-current
@@ -49,14 +53,19 @@ for input_file in "${inputs[@]}"; do
     if diff -q "$expected" "$actual" >/dev/null; then
         verdict "$label" 'Accepted.' "$GREEN"
     else
+        separator
         verdict "$label" 'Wrong Answer.' "$RED"
         printf '\n'
-        status '> ecpected output :' "$YELLOW"
+        status '> input' "$YELLOW"
+        cat "$input_file"
+        printf '\n'
+        status '> expected output' "$YELLOW"
         cat "$expected"
         printf '\n'
-        status '> output :' "$YELLOW"
+        status '> output' "$YELLOW"
         cat "$actual"
         printf '\n'
+        separator
         failed=1
     fi
 done
