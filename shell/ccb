@@ -7,6 +7,7 @@ RESET='\033[0m'
 if [ -t 1 ]; then COLOR=1; else COLOR=0; fi
 status() {
     if [ "$COLOR" = 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
+    elif [ -t 2 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET" >&2
     else printf '> %s\n' "$1" >&2; fi
 }
 if (( $# > 1 )); then status 'Usage: ccb [file.cpp]' "$ORANGE"; exit 1; fi
