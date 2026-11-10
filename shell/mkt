@@ -12,21 +12,30 @@ if (( $# > 1 )); then message 'Usage: mkt [test-number]' "$ORANGE"; exit 2; fi
 if [[ -f .cp-tools-current ]]; then IFS= read -r source_file < .cp-tools-current
 else message 'Run mkcpp first so the current source is known.' "$ORANGE"; exit 1; fi
 base=${source_file%.cpp}
-if (( $# )); then n=$1
+if (( $# )); then
+    [[ $1 =~ ^[0-9]+$ ]] || { message 'Test number must be a positive integer.' "$ORANGE"; exit 2; }
+    n=$((10#$1))
+    (( n > 0 )) || { message 'Test number must be a positive integer.' "$ORANGE"; exit 2; }
 else
     n=1
-    while [[ -e ${base}_t${n}.in || -e ${base}_t${n}.out ]]; do n=$((n+1)); done
+    while :; do
+        printf -v number '%02d' "$n"
+        [[ ! -e ${base}_test${number}.in && ! -e ${base}_test${number}.out ]] && break
+        n=$((n+1))
+    done
 fi
-[[ $n =~ ^[1-9][0-9]*$ ]] || { message 'Test number must be a positive integer.' "$ORANGE"; exit 2; }
-infile=${base}_t${n}.in
-outfile=${base}_t${n}.out
-[[ ! -e $infile && ! -e $outfile ]] || { message "Test already exists: ${base}_t${n}" "$ORANGE"; exit 1; }
-message "File name : $base" "$ORANGE"
+printf -v number '%02d' "$n"
+stem=${base}_test${number}
+infile=${stem}.in
+outfile=${stem}.out
+[[ ! -e $infile && ! -e $outfile ]] || { message "Test already exists: $stem" "$ORANGE"; exit 1; }
+message "File name : $infile" "$ORANGE"
 printf '\n'
 message 'Input' "$ORANGE"
 printf '\n'
 cat > "$infile"
 printf '\n'
+message "File name : $outfile" "$ORANGE"
 message 'Output' "$ORANGE"
 printf '\n'
 cat > "$outfile"

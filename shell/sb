@@ -19,9 +19,15 @@ verdict() {
     if [ "$COLOR" = 1 ]; then printf '%s %b> %s%b\n' "$filename" "$color" "$result" "$RESET"
     else printf '%s > %s\n' "$filename" "$result"; fi
 }
+test_number() {
+    label=${1##*/}
+    if [[ $label =~ _test([0-9]+)\.in$ ]]; then printf '%s' "${BASH_REMATCH[1]}"
+    else printf '??'; fi
+}
 separator() {
-    if [ "$COLOR" = 1 ]; then printf '%b> ------------- %b\n' "$RED" "$RESET"
-    else printf '> -------------\n'; fi
+    number=$1
+    if [ "$COLOR" = 1 ]; then printf '%s %b> ------------- %b\n' "$number" "$RED" "$RESET"
+    else printf '%s > -------------\n' "$number"; fi
 }
 if (( $# > 1 )); then status '> Usage: sb [file.cpp]' "$ORANGE"; exit 2; fi
 if (( $# == 1 )); then source_file=$1
@@ -31,7 +37,7 @@ else status '> Usage: sb [file.cpp]' "$ORANGE"; exit 2; fi
 if [[ ! -f $source_file ]]; then status "$source_file > Complication error." "$RED"; exit 1; fi
 base=${source_file%.cpp}
 shopt -s nullglob
-inputs=( "${base}"_t*.in )
+inputs=( "${base}"_test*.in )
 if (( ${#inputs[@]} == 0 )); then status "> No test files for $source_file." "$ORANGE"; exit 1; fi
 cxx=${CXX:-g++-16}
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -41,20 +47,20 @@ exe=$(mktemp "${TMPDIR:-/tmp}/cp-test.XXXXXX") || exit 1
 actual=$(mktemp "${TMPDIR:-/tmp}/cp-actual.XXXXXX") || { rm -f "$exe"; exit 1; }
 trap 'rm -f "$exe" "$actual"' EXIT HUP INT TERM
 if ! "$cxx" -std=c++17 -O2 -Wall -Wextra -DLOCAL -I"$include_dir" "${extra_flags[@]}" "$source_file" -o "$exe"; then
-    for input_file in "${inputs[@]}"; do verdict "$(basename "$input_file")" 'Complication error.' "$RED"; done
+    for input_file in "${inputs[@]}"; do verdict "$(test_number "$input_file")" 'Complication error.' "$RED"; done
     exit 1
 fi
 failed=0
 for input_file in "${inputs[@]}"; do
-    label=$(basename "$input_file")
+    number=$(test_number "$input_file")
     expected=${input_file%.in}.out
-    if [[ ! -f $expected ]]; then verdict "$label" 'Wrong Answer.' "$RED"; failed=1; continue; fi
-    if ! "$exe" < "$input_file" > "$actual" 2>/dev/null; then verdict "$label" 'Runtime error.' "$RED"; failed=1; continue; fi
+    if [[ ! -f $expected ]]; then verdict "$number" 'Wrong Answer.' "$RED"; failed=1; continue; fi
+    if ! "$exe" < "$input_file" > "$actual" 2>/dev/null; then verdict "$number" 'Runtime error.' "$RED"; failed=1; continue; fi
     if diff -q "$expected" "$actual" >/dev/null; then
-        verdict "$label" 'Accepted.' "$GREEN"
+        verdict "$number" 'Accepted.' "$GREEN"
     else
-        separator
-        verdict "$label" 'Wrong Answer.' "$RED"
+        separator "$number"
+        verdict "$number" 'Wrong Answer.' "$RED"
         printf '\n'
         status '> input' "$YELLOW"
         cat "$input_file"
@@ -65,7 +71,7 @@ for input_file in "${inputs[@]}"; do
         status '> output' "$YELLOW"
         cat "$actual"
         printf '\n'
-        separator
+        separator "$number"
         failed=1
     fi
 done
