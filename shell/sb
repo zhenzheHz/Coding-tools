@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run saved tests and print one verdict for each case.
+exec 2>/dev/null
 set -o pipefail
 GREEN='\033[1;32m'
 YELLOW='\033[1;33m'
@@ -34,11 +35,9 @@ include_dir=${CP_INCLUDE:-${CP_LIBRARY:-$script_dir/../library}}
 extra_flags=( ${GPP_ARGS:-} )
 exe=$(mktemp "${TMPDIR:-/tmp}/cp-test.XXXXXX") || exit 1
 actual=$(mktemp "${TMPDIR:-/tmp}/cp-actual.XXXXXX") || { rm -f "$exe"; exit 1; }
-compile_error=$(mktemp "${TMPDIR:-/tmp}/cp-compile-error.XXXXXX") || { rm -f "$exe" "$actual"; exit 1; }
-trap 'rm -f "$exe" "$actual" "$compile_error"' EXIT HUP INT TERM
-if ! "$cxx" -std=c++17 -O2 -Wall -Wextra -DLOCAL -I"$include_dir" "${extra_flags[@]}" "$source_file" -o "$exe" 2> "$compile_error"; then
+trap 'rm -f "$exe" "$actual"' EXIT HUP INT TERM
+if ! "$cxx" -std=c++17 -O2 -Wall -Wextra -DLOCAL -I"$include_dir" "${extra_flags[@]}" "$source_file" -o "$exe"; then
     for input_file in "${inputs[@]}"; do verdict "$(basename "$input_file")" 'Complication error.' "$RED"; done
-    cat "$compile_error" >&2
     exit 1
 fi
 failed=0
@@ -46,7 +45,7 @@ for input_file in "${inputs[@]}"; do
     label=$(basename "$input_file")
     expected=${input_file%.in}.out
     if [[ ! -f $expected ]]; then verdict "$label" 'Wrong Answer.' "$RED"; failed=1; continue; fi
-    if ! "$exe" < "$input_file" > "$actual"; then verdict "$label" 'Runtime error.' "$RED"; failed=1; continue; fi
+    if ! "$exe" < "$input_file" > "$actual" 2>/dev/null; then verdict "$label" 'Runtime error.' "$RED"; failed=1; continue; fi
     if diff -q "$expected" "$actual" >/dev/null; then
         verdict "$label" 'Accepted.' "$GREEN"
     else
