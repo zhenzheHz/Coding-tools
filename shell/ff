@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+ORANGE='\033[38;5;208m'
+GREEN='\033[1;32m'
+PURPLE='\033[1;35m'
+RESET='\033[0m'
+message() {
+    if [ -t 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
+    else printf '> %s\n' "$1"; fi
+}
+
+if (( $# )); then
+    message 'Usage: ff' "$ORANGE"
+    exit 2
+fi
+if [[ ! -f .cp-tools-current ]]; then
+    message 'No remembered file in this directory.' "$ORANGE"
+    exit 0
+fi
+
+IFS= read -r source_file < .cp-tools-current || true
+if [[ -z $source_file ]]; then
+    rm -f .cp-tools-current
+    message 'Removed the empty remembered-file record.' "$GREEN"
+    exit 0
+fi
+
+# Only clean files alongside the remembered source. Do not follow a source path
+# outside the current working directory when expanding its test-file pattern.
+source_dir=$(dirname -- "$source_file")
+source_name=$(basename -- "$source_file")
+base=${source_name%.cpp}
+shopt -s nullglob
+if [[ $source_dir == . ]]; then
+    candidates=( "${base}"_test*.in "${base}"_test*.out )
+else
+    candidates=( "${source_dir%/}/${base}"_test*.in "${source_dir%/}/${base}"_test*.out )
+fi
+files=()
+for candidate in "${candidates[@]}"; do
+    candidate_name=$(basename -- "$candidate")
+    test_number=${candidate_name#"${base}_test"}
+    test_number=${test_number%.*}
+    [[ $test_number =~ ^[0-9]+$ && -f $candidate ]] || continue
+    files+=("$candidate")
+done
+
+message "Remembered file (will be kept): $source_file" "$ORANGE"
+if (( ${#files[@]} )); then
+    printf '> Files to delete: '
+    separator=''
+    for file in "${files[@]}"; do
+        [[ ! -e $file ]] && continue
+        printf '%s%s' "$separator" "$file"
+        separator=', '
+    done
+    printf '\n'
+else
+    message 'No matching test files found to delete.' "$ORANGE"
+fi
+if [ -t 1 ]; then printf '%b> Forget the remembered file and delete these files? [y/N] %b' "$PURPLE" "$RESET"
+else printf '> Forget the remembered file and delete these files? [y/N] '; fi
+IFS= read -r answer || true
+case "$answer" in y|Y|yes|YES)
+    for file in "${files[@]}"; do [[ ! -e $file ]] || rm -f -- "$file"; done
+    rm -f .cp-tools-current
+    message 'Forgot the file and removed its test files. The source was kept.' "$GREEN"
+    ;;
+    *) message 'Cancelled; nothing was changed.' "$ORANGE"; exit 1 ;;
+esac

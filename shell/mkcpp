@@ -7,8 +7,16 @@ message() {
     if [ -t 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
     else printf '> %s\n' "$1"; fi
 }
-if (( $# != 1 )); then message 'Usage: mkcpp <filename[.cpp]>' "$ORANGE"; exit 2; fi
-name=$1
+open_editor=1
+if (( $# == 2 )) && [[ $1 == -t ]]; then
+    open_editor=0
+    name=$2
+elif (( $# == 1 )); then
+    name=$1
+else
+    message 'Usage: mkcpp [-t] <filename[.cpp]>' "$ORANGE"
+    exit 2
+fi
 [[ $name == *.cpp ]] || name="$name.cpp"
 [[ ! -e $name ]] || { message "File already exists: $name" "$ORANGE"; exit 1; }
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -20,6 +28,7 @@ trap 'rm -f "$header"' EXIT
 cat "$header" "$template" > "$name"
 printf '%s\n' "$name" > .cp-tools-current
 message 'Builded.' "$GREEN"
+(( open_editor )) || exit 0
 editor=${CODE_EDITOR:-${EDITOR:-code}}
 if command -v "$editor" >/dev/null 2>&1; then
     "$editor" "$name" >/dev/null 2>&1 || true

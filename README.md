@@ -77,17 +77,19 @@ On all platforms, the installer asks for the author name used in generated sourc
 
 | Command | Usage | Description |
 | --- | --- | --- |
-| `mkcpp` | `mkcpp <filename[.cpp]>` | Creates a source file from `library/default_code.cpp`, adds the author/date header, records it as the current file, and opens it when an editor is available. |
+| `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | Creates a source file from `library/default_code.cpp`, adds the author/date header, and records it as the current file. Use `-t` to skip opening an editor. |
 | `rr` | `rr [file.cpp]` | Compiles and runs the current or specified source. C++ uses C++17, `-O2`, `-Wall`, `-Wextra`, `-DLOCAL`, and the project library include path. Input redirection is supported. It also accepts `.c` files. |
 | `ccb` | `ccb [file.cpp]` | Preprocesses source for an online judge. It copies the result to the clipboard when a clipboard utility is available. Redirect stdout to save it to a file. |
 | `mkt` | `mkt [test-number]` | Interactively saves input and expected output as numbered test files. Press `Ctrl-D` to finish each entry. |
 | `sb` | `sb [file.cpp]` | Runs every matching test pair, compares output, and reports one result per test. Program and compiler stderr are suppressed. |
+| `ff` | `ff` | Forgets the remembered source and, after confirmation, deletes its matching test files while keeping the source. |
 | `codeheader` | `codeheader` | Prints the standard author/date header used by `mkcpp`. |
 
 ### Examples
 
 ```sh
 mkcpp A
+mkcpp -t B
 rr
 rr A.cpp < A_test01.in
 mkt

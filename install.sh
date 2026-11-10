@@ -72,7 +72,7 @@ if [[ -z "$AUTHOR" ]]; then
     echo '> Name cannot be empty.' >&2
     exit 1
 fi
-for command_file in codeheader mkcpp rr ccb mkt sb; do
+for command_file in codeheader mkcpp rr ccb mkt sb ff; do
     [[ -f "$SHELL_DIR/$command_file" ]] || { echo "Missing command: $SHELL_DIR/$command_file" >&2; exit 1; }
     chmod +x "$SHELL_DIR/$command_file"
 done

@@ -77,17 +77,19 @@ Windows Git Bash 支援已加入，但尚未在 Windows 主機上驗證。
 
 | 指令 | 用法 | 說明 |
 | --- | --- | --- |
-| `mkcpp` | `mkcpp <filename[.cpp]>` | 根據 `library/default_code.cpp` 建立程式檔、加入作者與日期標頭、記錄目前檔案，並在有可用編輯器時開啟。 |
+| `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | 根據 `library/default_code.cpp` 建立程式檔、加入作者與日期標頭並記錄目前檔案；加上 `-t` 時不自動開啟編輯器。 |
 | `rr` | `rr [file.cpp]` | 編譯並執行目前或指定的程式檔。C++ 使用 C++17、`-O2`、`-Wall`、`-Wextra`、`-DLOCAL` 和專案 library 路徑；支援輸入重導向，也接受 `.c` 檔。 |
 | `ccb` | `ccb [file.cpp]` | 預處理程式碼供線上 judge 使用。有剪貼簿工具時會複製結果，也可以用 stdout 重導向存成檔案。 |
 | `mkt` | `mkt [test-number]` | 互動式儲存 input 和預期 output。每段輸入完成後按 `Ctrl-D`。 |
 | `sb` | `sb [file.cpp]` | 執行所有相符的測資並比對輸出；每筆測資各自顯示結果。程式和編譯器的 stderr 會被丟棄。 |
+| `ff` | `ff` | 忘記目前記錄的程式檔；確認後刪除該檔名對應的測資檔，保留程式檔。 |
 | `codeheader` | `codeheader` | 輸出 `mkcpp` 使用的作者與日期標頭。 |
 
 ### 範例
 
 ```sh
 mkcpp A
+mkcpp -t B
 rr
 rr A.cpp < A_test01.in
 mkt
