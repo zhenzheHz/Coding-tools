@@ -23,18 +23,28 @@ case "${SOURCE##*.}" in
     c) COMPILER=${CC:-gcc}; STANDARD=-std=c17; EXTRA=() ;;
     *) status 'Compilation error' "$RED"; exit 1 ;;
 esac
-EXECUTABLE=$(mktemp "${TMPDIR:-/tmp}/rr.XXXXXX") || exit 1
-STDOUT_FILE=$(mktemp "${TMPDIR:-/tmp}/rr_out.XXXXXX") || { rm -f "$EXECUTABLE"; exit 1; }
-STDERR_FILE=$(mktemp "${TMPDIR:-/tmp}/rr_err.XXXXXX") || { rm -f "$EXECUTABLE" "$STDOUT_FILE"; exit 1; }
-trap 'rm -f "$EXECUTABLE" "$STDOUT_FILE" "$STDERR_FILE"' EXIT HUP INT TERM
+TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rr.XXXXXX") || exit 1
+EXECUTABLE="$TEMP_DIR/rr"
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) EXECUTABLE="$EXECUTABLE.exe" ;; esac
+STDOUT_FILE="$TEMP_DIR/stdout"
+STDERR_FILE="$TEMP_DIR/stderr"
+trap 'rm -rf "$TEMP_DIR"' EXIT HUP INT TERM
 "$COMPILER" "$STANDARD" -O2 -Wall -Wextra "${EXTRA[@]}" "$SOURCE" -o "$EXECUTABLE"
 if [ $? -ne 0 ]; then status 'Compilation error' "$RED"; exit 1; fi
 status 'Finished.' "$ORANGE"
 printf '\n'
-START=$(python3 -c 'import time; print(time.monotonic_ns())')
+if [[ $(uname -s) == Darwin ]]; then
+    START=$(python3 -c 'import time; print(time.monotonic_ns())')
+else
+    START=$(date +%s%N)
+fi
 "$EXECUTABLE" > "$STDOUT_FILE" 2> "$STDERR_FILE"
 EXIT_CODE=$?
-END=$(python3 -c 'import time; print(time.monotonic_ns())')
+if [[ $(uname -s) == Darwin ]]; then
+    END=$(python3 -c 'import time; print(time.monotonic_ns())')
+else
+    END=$(date +%s%N)
+fi
 TIME=$(awk -v s="$START" -v e="$END" 'BEGIN { printf "%.2f", (e-s)/1000000 }')
 if [ -s "$STDOUT_FILE" ]; then status 'stdout' "$GREEN"; cat "$STDOUT_FILE"; printf '\n'; fi
 if [ -s "$STDERR_FILE" ]; then status 'stderr' "$YELLOW"; cat "$STDERR_FILE"; printf '\n'; fi

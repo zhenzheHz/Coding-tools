@@ -68,6 +68,8 @@ elif command -v xclip >/dev/null 2>&1; then
     xclip -selection clipboard < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
 elif command -v xsel >/dev/null 2>&1; then
     xsel --clipboard --input < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
+elif command -v clip.exe >/dev/null 2>&1; then
+    clip.exe < "$result" || { status 'Failed to copy to clipboard.' "$RED"; exit 1; }
 else
     cat "$result"
     status 'No clipboard utility found; printed source above.' "$ORANGE"

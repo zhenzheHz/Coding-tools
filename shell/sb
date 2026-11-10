@@ -43,9 +43,11 @@ cxx=${CXX:-g++-16}
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 include_dir=${CP_INCLUDE:-${CP_LIBRARY:-$script_dir/../library}}
 extra_flags=( ${GPP_ARGS:-} )
-exe=$(mktemp "${TMPDIR:-/tmp}/cp-test.XXXXXX") || exit 1
-actual=$(mktemp "${TMPDIR:-/tmp}/cp-actual.XXXXXX") || { rm -f "$exe"; exit 1; }
-trap 'rm -f "$exe" "$actual"' EXIT HUP INT TERM
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/cp-test.XXXXXX") || exit 1
+exe="$tmp_dir/cp-test"
+case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) exe="$exe.exe" ;; esac
+actual="$tmp_dir/actual"
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 if ! "$cxx" -std=c++17 -O2 -Wall -Wextra -DLOCAL -I"$include_dir" "${extra_flags[@]}" "$source_file" -o "$exe"; then
     for input_file in "${inputs[@]}"; do verdict "$(test_number "$input_file")" 'Complication error.' "$RED"; done
     exit 1

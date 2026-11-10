@@ -11,7 +11,49 @@ case "$OS_NAME" in
         if command -v g++-16 >/dev/null 2>&1; then DEFAULT_CXX=g++-16; else DEFAULT_CXX=g++; fi
         if command -v gcc-16 >/dev/null 2>&1; then DEFAULT_CC=gcc-16; else DEFAULT_CC=gcc; fi
         ;;
-    *) echo "> Unsupported operating system: $OS_NAME (macOS and Linux are supported)." >&2; exit 1 ;;
+    MINGW*|MSYS*|CYGWIN*)
+        PLATFORM=Windows-Git-Bash
+        DEFAULT_CXX=${CXX:-}
+        if [[ -z $DEFAULT_CXX ]]; then
+            if command -v cygpath >/dev/null 2>&1; then
+                for env_name in ProgramFiles 'ProgramFiles(x86)'; do
+                    windows_root=$(printenv "$env_name" 2>/dev/null || true)
+                    [[ -n $windows_root ]] || continue
+                    candidate="$(cygpath -u "$windows_root")/CodeBlocks/MinGW/bin/g++.exe"
+                    if [[ -x $candidate ]]; then DEFAULT_CXX=$candidate; break; fi
+                done
+            fi
+        fi
+        if [[ -z $DEFAULT_CXX ]]; then
+            for candidate in \
+                "/c/Program Files/CodeBlocks/MinGW/bin/g++.exe" \
+                "/c/Program Files (x86)/CodeBlocks/MinGW/bin/g++.exe" \
+                "/c/MinGW/bin/g++.exe" \
+                "/mingw64/bin/g++" \
+                "/ucrt64/bin/g++"; do
+                if [[ -x $candidate ]]; then DEFAULT_CXX=$candidate; break; fi
+            done
+        fi
+        if [[ -z $DEFAULT_CXX ]]; then
+            if command -v g++ >/dev/null 2>&1; then DEFAULT_CXX=$(command -v g++)
+            elif command -v g++.exe >/dev/null 2>&1; then DEFAULT_CXX=$(command -v g++.exe); fi
+        fi
+        DEFAULT_CC=${CC:-}
+        if [[ -z $DEFAULT_CC && $DEFAULT_CXX == *g++.exe ]]; then
+            candidate=${DEFAULT_CXX%g++.exe}gcc.exe
+            [[ ! -x $candidate ]] || DEFAULT_CC=$candidate
+        elif [[ -z $DEFAULT_CC && $DEFAULT_CXX == *g++ ]]; then
+            candidate=${DEFAULT_CXX%g++}gcc
+            [[ ! -x $candidate ]] || DEFAULT_CC=$candidate
+        fi
+        if [[ -z $DEFAULT_CC ]]; then
+            if command -v gcc >/dev/null 2>&1; then DEFAULT_CC=$(command -v gcc)
+            elif command -v gcc.exe >/dev/null 2>&1; then DEFAULT_CC=$(command -v gcc.exe)
+            else DEFAULT_CC=$DEFAULT_CXX; fi
+        fi
+        [[ -n $DEFAULT_CXX ]] || { echo '> MinGW g++ not found. Install Code::Blocks with MinGW or add MinGW to PATH.' >&2; exit 1; }
+        ;;
+    *) echo "> Unsupported operating system: $OS_NAME (macOS, Linux, and Windows Git Bash are supported)." >&2; exit 1 ;;
 esac
 case "${SHELL##*/}" in
     zsh) RC_FILE="$HOME/.zshrc" ;;
