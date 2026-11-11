@@ -103,6 +103,7 @@ ccb A.cpp > A_precompiled.cpp
 
 Library documentation is available in Markdown:
 
+- [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
 - [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
 
