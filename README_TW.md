@@ -105,6 +105,7 @@ Library 說明文件（Markdown）：
 
 - [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
+- [Sparse Table](docs/sparse_table.md)
 - [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)
 
 適合列印的 PDF 參考資料之後可能會另外放在 [`docs/`](docs/) 目錄。
