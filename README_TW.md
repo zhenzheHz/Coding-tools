@@ -101,10 +101,11 @@ ccb A.cpp > A_precompiled.cpp
 
 ## 文件 Documentation
 
-Library 說明文件（Markdown）：
+Library 說明文件與標頭：
 
 - [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
+- Hash Map 標頭：`<hash_map>`（`library/hash_map.hpp`）
 - [Ordered Set](docs/ordered_set.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)

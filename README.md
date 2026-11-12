@@ -101,10 +101,11 @@ ccb A.cpp > A_precompiled.cpp
 
 ## Documentation
 
-Library documentation is available in Markdown:
+Library documentation and headers:
 
 - [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
+- Hash Map header: `<hash_map>` (`library/hash_map.hpp`)
 - [Ordered Set](docs/ordered_set.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
