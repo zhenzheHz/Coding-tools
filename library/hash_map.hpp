@@ -490,7 +490,6 @@ public:
         if (need > capacity_) rehash(need);
     }
 
-#ifdef ZZ_LIBRARY_DEBUG
     bool verify() const {
         if (!capacity_) return size_ == 0 && !slots_;
         if ((capacity_ & (capacity_ - 1)) || capacity_ < MIN_CAPACITY) return false;
@@ -505,7 +504,6 @@ public:
         }
         return full == size_ && size_ + deleted <= threshold(capacity_) && growth_left_ == threshold(capacity_) - size_ - deleted;
     }
-#endif
 };
 
 }
