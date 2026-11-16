@@ -14,8 +14,8 @@ Coding Tools provides short terminal commands for the everyday competitive progr
 
 ## Features
 
-- Create a C++ source file from a shared template and remember the current source.
-- Compile and run C++ or C programs with a local development define.
+- Create C++ or Python source files and remember the current source.
+- Compile and run C or C++ programs, or run Python scripts.
 - Preprocess C++ source for online judges and copy it to the clipboard when available.
 - Save numbered input/output pairs and compare them with the program's output.
 
@@ -79,7 +79,7 @@ On all platforms, the installer asks for the author name used in generated sourc
 | --- | --- | --- |
 | `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | Creates a source file from `library/default_code.cpp`, adds the author/date header, and records it as the current file. Use `-t` to skip opening an editor. |
 | `mkpy` | `mkpy [-t] <filename[.py]>` | Creates a Python source containing only the author/date code header and records it as the current file. Use `-t` to skip opening an editor. |
-| `rr` | `rr [file.cpp|file.c|file.py]` | Compiles and runs the current or specified source. C++ uses C++17 and the configured warning/include options; `.c` files are also supported. Python files run with `${PYTHON:-python3}`. All modes support input redirection and report stdout, stderr, elapsed time, and exit code. |
+| `rr` | `rr [file]` | Compiles and runs the remembered source, or the specified `.cpp`, `.c`, or `.py` file. A name without an extension is treated as `.cpp`. C++ uses C++17, `-O2`, `-Wall`, `-Wextra`, `-DLOCAL`, and the project library include path; C uses C17; Python uses `${PYTHON:-python3}`. Input redirection is supported. See [the `rr` guide](docs/rr.md). |
 | `ccb` | `ccb [file.cpp]` | Preprocesses source for an online judge. It copies the result to the clipboard when a clipboard utility is available. Redirect stdout to save it to a file. |
 | `mkt` | `mkt [test-number]` | Interactively saves input and expected output as numbered test files. Press `Ctrl-D` to finish each entry. |
 | `sb` | `sb [file.cpp]` | Runs every matching test pair, compares output, and reports one result per test. Program and compiler stderr are suppressed. |
@@ -108,6 +108,7 @@ Library documentation and headers:
 - [Fenwick Tree](docs/fenwick_tree.md)
 - Hash Map header: `<hash_map>` (`library/hash_map.hpp`)
 - [Ordered Set](docs/ordered_set.md)
+- [`rr` command guide](docs/rr.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
 

@@ -14,8 +14,8 @@ Coding Tools 提供一組簡短的終端機指令，協助處理競程常見流�
 
 ## 功能
 
-- 從共用範本建立 C++ 程式檔，並記錄目前使用的檔案。
-- 使用本機開發用 define 編譯和執行 C++ 或 C 程式。
+- 建立 C++ 或 Python 程式檔，並記錄目前使用的檔案。
+- 編譯和執行 C++、C 程式，或執行 Python 程式。
 - 預處理 C++ 程式碼；系統有剪貼簿工具時可直接複製結果。
 - 建立編號 input/output 測資，並比對程式輸出。
 
@@ -79,7 +79,7 @@ Windows Git Bash 支援已加入，但尚未在 Windows 主機上驗證。
 | --- | --- | --- |
 | `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | 根據 `library/default_code.cpp` 建立程式檔、加入作者與日期標頭並記錄目前檔案；加上 `-t` 時不自動開啟編輯器。 |
 | `mkpy` | `mkpy [-t] <filename[.py]>` | 建立只含作者與日期 code header 的 Python 檔並記錄目前檔案；加上 `-t` 時不自動開啟編輯器。 |
-| `rr` | `rr [file.cpp|file.c|file.py]` | 編譯或執行目前或指定的程式檔。C++ 與 C 維持原有編譯選項；Python 使用 `${PYTHON:-python3}` 執行。三種模式皆支援輸入重導向，並顯示 stdout、stderr、執行時間與退出碼。 |
+| `rr` | `rr [file]` | 編譯或執行目前記錄的程式檔，或指定的 `.cpp`、`.c`、`.py` 檔；未附副檔名時視為 `.cpp`。C++ 使用 C++17、`-O2`、`-Wall`、`-Wextra`、`-DLOCAL` 和專案 library 路徑；C 使用 C17；Python 使用 `${PYTHON:-python3}`。支援輸入重導向。詳見 [`rr` 使用說明](docs/rr.md)。 |
 | `ccb` | `ccb [file.cpp]` | 預處理程式碼供線上 judge 使用。有剪貼簿工具時會複製結果，也可以用 stdout 重導向存成檔案。 |
 | `mkt` | `mkt [test-number]` | 互動式儲存 input 和預期 output。每段輸入完成後按 `Ctrl-D`。 |
 | `sb` | `sb [file.cpp]` | 執行所有相符的測資並比對輸出；每筆測資各自顯示結果。程式和編譯器的 stderr 會被丟棄。 |
@@ -108,6 +108,7 @@ Library 說明文件與標頭：
 - [Fenwick Tree](docs/fenwick_tree.md)
 - Hash Map 標頭：`<hash_map>`（`library/hash_map.hpp`）
 - [Ordered Set](docs/ordered_set.md)
+- [`rr` 指令使用說明](docs/rr.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)
 
