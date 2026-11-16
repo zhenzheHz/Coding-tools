@@ -80,7 +80,7 @@ The installer asks for the author name used in generated source headers and adds
 | --- | --- | --- |
 | `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | Creates a source file from `library/default_code.cpp`, adds the author/date header, and records it as the current file. Use `-t` to skip opening an editor. |
 | `mkpy` | `mkpy [-t] <filename[.py]>` | Creates a Python source containing only the author/date code header and records it as the current file. Use `-t` to skip opening an editor. |
-| `rr` | `rr [file]` | Compiles and runs the remembered source, or the specified `.cpp`, `.c`, or `.py` file. A name without an extension is treated as `.cpp`. C++ uses C++17, `-O2`, `-Wall`, `-Wextra`, `-DLOCAL`, and the project library include path; C uses C17; Python uses `${PYTHON:-python3}`. Input redirection is supported. See [the `rr` guide](docs/rr.md). |
+| `rr` | `rr [file]` | Compiles and runs the remembered source, or the specified `.cpp`, `.c`, or `.py` file. A name without an extension is treated as `.cpp`. C++ uses C++17, `-O2`, `-Wall`, `-Wextra`, `-DLOCAL`, and the project library include path; C uses C17; Python uses `${PYTHON:-python3}`. Input redirection is supported. See [the `rr` guide](docs/shell/rr.md). |
 | `ccb` | `ccb [file.cpp]` | Preprocesses source for an online judge. It copies the result to the clipboard when a clipboard utility is available. Redirect stdout to save it to a file. |
 | `mkt` | `mkt [test-number]` | Interactively saves input and expected output as numbered test files. Press `Ctrl-D` to finish each entry. |
 | `sb` | `sb [file.cpp]` | Runs every matching test pair, compares output, and reports one result per test. Program and compiler stderr are suppressed. |
@@ -103,20 +103,43 @@ ccb A.cpp > A_precompiled.cpp
 
 ## Documentation
 
-Library and command documentation:
+### Shell
 
-- [Disjoint Set Union](docs/disjoint_set.md)
-- [Fenwick Tree](docs/fenwick_tree.md)
-- [Hash Map](docs/hash_map.md)
-- [Heap](docs/heap.md)
-- [128-bit Integers](docs/int128.md)
-- [Monotonic Stack Queries](docs/monotonic_stack.md)
-- [Ordered Set](docs/ordered_set.md)
-- [`rr` command guide](docs/rr.md)
-- [Sparse Table](docs/sparse_table.md)
-- [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
-- [Treap](docs/treap.md)
-- [Trie](docs/trie.md)
+| Command | Description | Guide |
+| --- | --- | --- |
+| `ccb` | Preprocess C++ source for an online judge. | [Usage](docs/shell/ccb.md) |
+| `codeheader` | Print the author/date source header. | [Usage](docs/shell/codeheader.md) |
+| `ff` | Forget the current source and optionally remove its test files. | [Usage](docs/shell/ff.md) |
+| `mkcpp` | Create a C++ source file from the shared template. | [Usage](docs/shell/mkcpp.md) |
+| `mkpy` | Create a Python source file with the author/date header. | [Usage](docs/shell/mkpy.md) |
+| `mkt` | Save an input/output test pair. | [Usage](docs/shell/mkt.md) |
+| `rr` | Compile and run C/C++ or run Python. | [Usage](docs/shell/rr.md) |
+| `sb` | Run saved tests and compare expected output. | [Usage](docs/shell/sb.md) |
+
+### Data Structures
+
+| Structure | Header | Guide |
+| --- | --- | --- |
+| Disjoint Set Union | `<disjoint_set>` | [Documentation](docs/disjoint_set.md) |
+| Fenwick Tree | `<fenwick>` | [Documentation](docs/fenwick_tree.md) |
+| Hash Map | `<hash_map>` | [Documentation](docs/hash_map.md) |
+| Heap | `<heap>` | [Documentation](docs/heap.md) |
+| Monotonic Stack Queries | `<monotonic_stack>` | [Documentation](docs/monotonic_stack.md) |
+| Ordered Set | `<ordered_set>` | [Documentation](docs/ordered_set.md) |
+| Segment Trees | `<magic_tree>` / `<seg_tree>` | [Documentation](docs/segment_tree.md) |
+| Sparse Table | `<sparse_table>` | [Documentation](docs/sparse_table.md) |
+| Treap | `<treap>` | [Documentation](docs/treap.md) |
+| Trie | `<trie>` | [Documentation](docs/trie.md) |
+
+### Math
+
+| Topic | Header | Guide |
+| --- | --- | --- |
+| 128-bit Integers | `<int128>` | [Documentation](docs/int128.md) |
+
+### Graph
+
+Graph library documentation will be listed here as it is added.
 
 Printable PDF references may be added under [`docs/`](docs/) separately.
 

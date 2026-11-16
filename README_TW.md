@@ -80,7 +80,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 | --- | --- | --- |
 | `mkcpp` | `mkcpp [-t] <filename[.cpp]>` | 根據 `library/default_code.cpp` 建立程式檔、加入作者與日期標頭並記錄目前檔案；加上 `-t` 時不自動開啟編輯器。 |
 | `mkpy` | `mkpy [-t] <filename[.py]>` | 建立只含作者與日期 code header 的 Python 檔並記錄目前檔案；加上 `-t` 時不自動開啟編輯器。 |
-| `rr` | `rr [file]` | 編譯或執行目前記錄的程式檔，或指定的 `.cpp`、`.c`、`.py` 檔；未附副檔名時視為 `.cpp`。C++ 使用 C++17、`-O2`、`-Wall`、`-Wextra`、`-DLOCAL` 和專案 library 路徑；C 使用 C17；Python 使用 `${PYTHON:-python3}`。支援輸入重導向。詳見 [`rr` 使用說明](docs/rr.md)。 |
+| `rr` | `rr [file]` | 編譯或執行目前記錄的程式檔，或指定的 `.cpp`、`.c`、`.py` 檔；未附副檔名時視為 `.cpp`。C++ 使用 C++17、`-O2`、`-Wall`、`-Wextra`、`-DLOCAL` 和專案 library 路徑；C 使用 C17；Python 使用 `${PYTHON:-python3}`。支援輸入重導向。詳見 [`rr` 使用說明](docs/shell/rr.md)。 |
 | `ccb` | `ccb [file.cpp]` | 預處理程式碼供線上 judge 使用。有剪貼簿工具時會複製結果，也可以用 stdout 重導向存成檔案。 |
 | `mkt` | `mkt [test-number]` | 互動式儲存 input 和預期 output。每段輸入完成後按 `Ctrl-D`。 |
 | `sb` | `sb [file.cpp]` | 執行所有相符的測資並比對輸出；每筆測資各自顯示結果。程式和編譯器的 stderr 會被丟棄。 |
@@ -103,20 +103,43 @@ ccb A.cpp > A_precompiled.cpp
 
 ## 文件 Documentation
 
-Library 與指令說明文件：
+### Shell 指令
 
-- [Disjoint Set Union](docs/disjoint_set.md)
-- [Fenwick Tree](docs/fenwick_tree.md)
-- [Hash Map](docs/hash_map.md)
-- [Heap](docs/heap.md)
-- [128-bit Integers](docs/int128.md)
-- [Monotonic Stack Queries](docs/monotonic_stack.md)
-- [Ordered Set](docs/ordered_set.md)
-- [`rr` 指令使用說明](docs/rr.md)
-- [Sparse Table](docs/sparse_table.md)
-- [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)
-- [Treap](docs/treap.md)
-- [Trie](docs/trie.md)
+| 指令 | 說明 | 文件 |
+| --- | --- | --- |
+| `ccb` | 預處理 C++ 程式碼供線上 judge 使用。 | [使用說明](docs/shell/ccb.md) |
+| `codeheader` | 輸出作者與日期程式標頭。 | [使用說明](docs/shell/codeheader.md) |
+| `ff` | 忘記目前程式檔，並可刪除對應測資。 | [使用說明](docs/shell/ff.md) |
+| `mkcpp` | 根據共用範本建立 C++ 程式檔。 | [使用說明](docs/shell/mkcpp.md) |
+| `mkpy` | 建立含作者與日期標頭的 Python 檔。 | [使用說明](docs/shell/mkpy.md) |
+| `mkt` | 儲存一組 input/output 測資。 | [使用說明](docs/shell/mkt.md) |
+| `rr` | 編譯並執行 C/C++，或執行 Python。 | [使用說明](docs/shell/rr.md) |
+| `sb` | 執行已儲存測資並比對預期輸出。 | [使用說明](docs/shell/sb.md) |
+
+### 資料結構
+
+| 結構 | 標頭 | 文件 |
+| --- | --- | --- |
+| Disjoint Set Union | `<disjoint_set>` | [說明](docs/disjoint_set.md) |
+| Fenwick Tree | `<fenwick>` | [說明](docs/fenwick_tree.md) |
+| Hash Map | `<hash_map>` | [說明](docs/hash_map.md) |
+| Heap | `<heap>` | [說明](docs/heap.md) |
+| Monotonic Stack Queries | `<monotonic_stack>` | [說明](docs/monotonic_stack.md) |
+| Ordered Set | `<ordered_set>` | [說明](docs/ordered_set.md) |
+| Segment Trees | `<magic_tree>` / `<seg_tree>` | [說明](docs/segment_tree.md) |
+| Sparse Table | `<sparse_table>` | [說明](docs/sparse_table.md) |
+| Treap | `<treap>` | [說明](docs/treap.md) |
+| Trie | `<trie>` | [說明](docs/trie.md) |
+
+### 數學
+
+| 主題 | 標頭 | 文件 |
+| --- | --- | --- |
+| 128-bit 整數 | `<int128>` | [說明](docs/int128.md) |
+
+### 圖論
+
+之後新增的圖論 library 文件會列在這裡。
 
 適合列印的 PDF 參考資料之後可能會另外放在 [`docs/`](docs/) 目錄。
 
