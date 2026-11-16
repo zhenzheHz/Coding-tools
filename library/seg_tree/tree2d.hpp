@@ -8,8 +8,8 @@ namespace zz_library {
 template <class T>
 class Segment_tree<T, tree2d> {
 private:
-    // Each outer x-node owns a randomized y-treap. A y-node stores the
-    // aggregate for that y-coordinate and the subtree aggregate over y.
+    // Each outer x-node owns a y-AVL tree. A y-node stores the aggregate for
+    // that y-coordinate and the subtree aggregate over y.
     struct Inner_node {
         std::int64_t y = 0;
         T point_sum{};
@@ -19,7 +19,7 @@ private:
         int left = 0;
         int right = 0;
         int size = 1;
-        std::uint32_t priority = 0;
+        int height = 1;
         // The int-indexed node pool bounds the number of live points below INT_MAX.
         std::uint32_t point_mark = 0;
         std::uint32_t mark = 0;
@@ -41,7 +41,6 @@ private:
     std::vector<Outer_node> outer_nodes{Outer_node{}};
     std::vector<int> free_inner_nodes;
     std::vector<int> free_outer_nodes;
-    std::mt19937_64 inner_rng{std::random_device{}()};
 
     int root = 0;
     std::int64_t x_left = 0;
@@ -147,6 +146,7 @@ private:
         const Inner_node* left = node.left ? &inner_nodes[static_cast<std::size_t>(node.left)] : nullptr;
         const Inner_node* right = node.right ? &inner_nodes[static_cast<std::size_t>(node.right)] : nullptr;
         node.size = 1 + (left ? left->size : 0) + (right ? right->size : 0);
+        node.height = 1 + std::max(left ? left->height : 0, right ? right->height : 0);
         node.sum = node.point_sum + (left ? left->sum : T()) + (right ? right->sum : T());
         node.mark = node.point_mark + (left ? left->mark : 0U) + (right ? right->mark : 0U);
         bool has_value = node.point_mark != 0;
@@ -180,19 +180,34 @@ private:
         return top;
     }
 
-    int merge_inner(int left, int right) {
-        if (!left) return right;
-        if (!right) return left;
-        if (inner_nodes[static_cast<std::size_t>(left)].priority > inner_nodes[static_cast<std::size_t>(right)].priority) {
-            const int child = merge_inner(inner_nodes[static_cast<std::size_t>(left)].right, right);
-            inner_nodes[static_cast<std::size_t>(left)].right = child;
-            pull_inner(left);
-            return left;
+    int balance_inner(int index) {
+        pull_inner(index);
+        const Inner_node& node = inner_nodes[static_cast<std::size_t>(index)];
+        const int left_height = node.left ? inner_nodes[static_cast<std::size_t>(node.left)].height : 0;
+        const int right_height = node.right ? inner_nodes[static_cast<std::size_t>(node.right)].height : 0;
+        if (left_height - right_height > 1) {
+            const int left = node.left;
+            const int left_left_height = inner_nodes[static_cast<std::size_t>(left)].left
+                ? inner_nodes[static_cast<std::size_t>(inner_nodes[static_cast<std::size_t>(left)].left)].height : 0;
+            const int left_right_height = inner_nodes[static_cast<std::size_t>(left)].right
+                ? inner_nodes[static_cast<std::size_t>(inner_nodes[static_cast<std::size_t>(left)].right)].height : 0;
+            if (left_left_height < left_right_height) {
+                inner_nodes[static_cast<std::size_t>(index)].left = rotate_inner_left(left);
+            }
+            return rotate_inner_right(index);
         }
-        const int child = merge_inner(left, inner_nodes[static_cast<std::size_t>(right)].left);
-        inner_nodes[static_cast<std::size_t>(right)].left = child;
-        pull_inner(right);
-        return right;
+        if (right_height - left_height > 1) {
+            const int right = node.right;
+            const int right_left_height = inner_nodes[static_cast<std::size_t>(right)].left
+                ? inner_nodes[static_cast<std::size_t>(inner_nodes[static_cast<std::size_t>(right)].left)].height : 0;
+            const int right_right_height = inner_nodes[static_cast<std::size_t>(right)].right
+                ? inner_nodes[static_cast<std::size_t>(inner_nodes[static_cast<std::size_t>(right)].right)].height : 0;
+            if (right_right_height < right_left_height) {
+                inner_nodes[static_cast<std::size_t>(index)].right = rotate_inner_right(right);
+            }
+            return rotate_inner_left(index);
+        }
+        return index;
     }
 
     Info inner_point(int index, std::int64_t y) const {
@@ -210,7 +225,6 @@ private:
             index = allocate_inner_node();
             Inner_node& node = inner_nodes[static_cast<std::size_t>(index)];
             node.y = y;
-            node.priority = static_cast<std::uint32_t>(inner_rng() >> 32);
             node.point_sum = node.sum = value.sum;
             node.point_max = node.maximum = value.maximum;
             node.point_mark = node.mark = static_cast<std::uint32_t>(value.mark);
@@ -222,31 +236,40 @@ private:
             if (!value.mark) {
                 const int left = inner_nodes[static_cast<std::size_t>(index)].left;
                 const int right = inner_nodes[static_cast<std::size_t>(index)].right;
-                const int replacement = merge_inner(left, right);
-                release_inner_node(index);
-                return replacement;
+                if (!left || !right) {
+                    const int replacement = left ? left : right;
+                    release_inner_node(index);
+                    return replacement;
+                }
+
+                int successor = right;
+                while (inner_nodes[static_cast<std::size_t>(successor)].left) {
+                    successor = inner_nodes[static_cast<std::size_t>(successor)].left;
+                }
+                const Inner_node successor_value = inner_nodes[static_cast<std::size_t>(successor)];
+                Inner_node& node = inner_nodes[static_cast<std::size_t>(index)];
+                node.y = successor_value.y;
+                node.point_sum = successor_value.point_sum;
+                node.point_max = successor_value.point_max;
+                node.point_mark = successor_value.point_mark;
+                node.right = update_inner(node.right, successor_value.y, {});
+                return balance_inner(index);
             }
             Inner_node& node = inner_nodes[static_cast<std::size_t>(index)];
             node.point_sum = value.sum;
             node.point_max = value.maximum;
             node.point_mark = static_cast<std::uint32_t>(value.mark);
-            pull_inner(index);
-            return index;
+            return balance_inner(index);
         }
 
         if (y < key) {
             const int child = update_inner(inner_nodes[static_cast<std::size_t>(index)].left, y, value);
             inner_nodes[static_cast<std::size_t>(index)].left = child;
-            if (child && inner_nodes[static_cast<std::size_t>(child)].priority > inner_nodes[static_cast<std::size_t>(index)].priority)
-                return rotate_inner_right(index);
         } else {
             const int child = update_inner(inner_nodes[static_cast<std::size_t>(index)].right, y, value);
             inner_nodes[static_cast<std::size_t>(index)].right = child;
-            if (child && inner_nodes[static_cast<std::size_t>(child)].priority > inner_nodes[static_cast<std::size_t>(index)].priority)
-                return rotate_inner_left(index);
         }
-        pull_inner(index);
-        return index;
+        return balance_inner(index);
     }
 
     std::uint64_t inner_count_less(int index, std::int64_t y, bool include_equal) const {
@@ -361,9 +384,7 @@ private:
         return query_outer(root, x_left, x_right, x1, x2, y1, y2);
     }
 
-    static bool rectangle_has_zero_cell(std::int64_t x1, std::int64_t x2,
-                                        std::int64_t y1, std::int64_t y2,
-                                        std::uint64_t nonzero_points) {
+    static bool rectangle_has_zero_cell(std::int64_t x1, std::int64_t x2, std::int64_t y1, std::int64_t y2, std::uint64_t nonzero_points) {
         using wide = __uint128_t;
         const wide width = static_cast<wide>(static_cast<std::uint64_t>(x2) - static_cast<std::uint64_t>(x1)) + 1;
         const wide height = static_cast<wide>(static_cast<std::uint64_t>(y2) - static_cast<std::uint64_t>(y1)) + 1;
@@ -429,21 +450,17 @@ public:
         root = update_outer(root, x_left, x_right, x, y, value, false);
     }
 
-    T query_sum(std::int64_t x1, std::int64_t x2,
-                std::int64_t y1, std::int64_t y2) const {
+    T query_sum(std::int64_t x1, std::int64_t x2, std::int64_t y1, std::int64_t y2) const {
         return query_rectangle(x1, x2, y1, y2).sum;
     }
 
-    std::uint64_t query_mark(std::int64_t x1, std::int64_t x2,
-                             std::int64_t y1, std::int64_t y2) const {
+    std::uint64_t query_mark(std::int64_t x1, std::int64_t x2, std::int64_t y1, std::int64_t y2) const {
         return query_rectangle(x1, x2, y1, y2).mark;
     }
 
-    T query_max(std::int64_t x1, std::int64_t x2,
-                std::int64_t y1, std::int64_t y2) const {
+    T query_max(std::int64_t x1, std::int64_t x2, std::int64_t y1, std::int64_t y2) const {
         const Info result = query_rectangle(x1, x2, y1, y2);
-        return rectangle_has_zero_cell(x1, x2, y1, y2, result.mark)
-            ? std::max(result.maximum, T()) : result.maximum;
+        return rectangle_has_zero_cell(x1, x2, y1, y2, result.mark) ? std::max(result.maximum, T()) : result.maximum;
     }
 };
 
