@@ -11,16 +11,17 @@ status() {
     if [ "$COLOR" = 1 ]; then printf '%b> %s%b\n' "$2" "$1" "$RESET"
     else printf '> %s\n' "$1"; fi
 }
-if (( $# > 1 )); then status 'Usage: rr [file.cpp]' "$ORANGE"; exit 1; fi
+if (( $# > 1 )); then status 'Usage: rr [file.cpp|file.c|file.py]' "$ORANGE"; exit 1; fi
 if (( $# == 1 )); then SOURCE=$1
 elif [[ -f .cp-tools-current ]]; then IFS= read -r SOURCE < .cp-tools-current
 else status 'CE' "$RED"; exit 1; fi
-[[ $SOURCE == *.cpp ]] || SOURCE="$SOURCE.cpp"
+if [[ $SOURCE != *.cpp && $SOURCE != *.c && $SOURCE != *.py ]]; then SOURCE="$SOURCE.cpp"; fi
 if [[ ! -f $SOURCE ]]; then status 'CE' "$RED"; exit 1; fi
 COMPILER=${CXX:-g++-16}
 case "${SOURCE##*.}" in
     cpp) STANDARD=-std=c++17; EXTRA=(-DLOCAL "-I${CP_INCLUDE:-${CP_LIBRARY:-$(cd "$(dirname "$0")" && pwd)/../library}}") ;;
     c) COMPILER=${CC:-gcc}; STANDARD=-std=c17; EXTRA=() ;;
+    py) PYTHON=${PYTHON:-python3}; EXTRA=() ;;
     *) status 'Compilation error' "$RED"; exit 1 ;;
 esac
 TEMP_DIR=$(mktemp -d "${TMPDIR:-/tmp}/rr.XXXXXX") || exit 1
@@ -29,8 +30,12 @@ case "$(uname -s)" in MINGW*|MSYS*|CYGWIN*) EXECUTABLE="$EXECUTABLE.exe" ;; esac
 STDOUT_FILE="$TEMP_DIR/stdout"
 STDERR_FILE="$TEMP_DIR/stderr"
 trap 'rm -rf "$TEMP_DIR"' EXIT HUP INT TERM
-"$COMPILER" "$STANDARD" -O2 -Wall -Wextra "${EXTRA[@]}" "$SOURCE" -o "$EXECUTABLE"
-if [ $? -ne 0 ]; then status 'Compilation error' "$RED"; exit 1; fi
+if [[ ${SOURCE##*.} == py ]]; then
+    command -v "$PYTHON" >/dev/null 2>&1 || { status "Python interpreter not found: $PYTHON" "$RED"; exit 1; }
+else
+    "$COMPILER" "$STANDARD" -O2 -Wall -Wextra "${EXTRA[@]}" "$SOURCE" -o "$EXECUTABLE"
+    if [ $? -ne 0 ]; then status 'Compilation error' "$RED"; exit 1; fi
+fi
 status 'Finished.' "$ORANGE"
 printf '\n'
 if [[ $(uname -s) == Darwin ]]; then
@@ -38,7 +43,11 @@ if [[ $(uname -s) == Darwin ]]; then
 else
     START=$(date +%s%N)
 fi
-"$EXECUTABLE" > "$STDOUT_FILE" 2> "$STDERR_FILE"
+if [[ ${SOURCE##*.} == py ]]; then
+    "$PYTHON" "$SOURCE" > "$STDOUT_FILE" 2> "$STDERR_FILE"
+else
+    "$EXECUTABLE" > "$STDOUT_FILE" 2> "$STDERR_FILE"
+fi
 EXIT_CODE=$?
 if [[ $(uname -s) == Darwin ]]; then
     END=$(python3 -c 'import time; print(time.monotonic_ns())')
