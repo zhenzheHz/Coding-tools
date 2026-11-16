@@ -102,15 +102,20 @@ ccb A.cpp > A_precompiled.cpp
 
 ## Documentation
 
-Library documentation and headers:
+Library and command documentation:
 
 - [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
-- Hash Map header: `<hash_map>` (`library/hash_map.hpp`)
+- [Hash Map](docs/hash_map.md)
+- [Heap](docs/heap.md)
+- [128-bit Integers](docs/int128.md)
+- [Monotonic Stack Queries](docs/monotonic_stack.md)
 - [Ordered Set](docs/ordered_set.md)
 - [`rr` command guide](docs/rr.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees: `magic_tree` and `seg_tree`](docs/segment_tree.md)
+- [Treap](docs/treap.md)
+- [Trie](docs/trie.md)
 
 Printable PDF references may be added under [`docs/`](docs/) separately.
 

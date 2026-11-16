@@ -102,15 +102,20 @@ ccb A.cpp > A_precompiled.cpp
 
 ## 文件 Documentation
 
-Library 說明文件與標頭：
+Library 與指令說明文件：
 
 - [Disjoint Set Union](docs/disjoint_set.md)
 - [Fenwick Tree](docs/fenwick_tree.md)
-- Hash Map 標頭：`<hash_map>`（`library/hash_map.hpp`）
+- [Hash Map](docs/hash_map.md)
+- [Heap](docs/heap.md)
+- [128-bit Integers](docs/int128.md)
+- [Monotonic Stack Queries](docs/monotonic_stack.md)
 - [Ordered Set](docs/ordered_set.md)
 - [`rr` 指令使用說明](docs/rr.md)
 - [Sparse Table](docs/sparse_table.md)
 - [Segment Trees：`magic_tree` 與 `seg_tree`](docs/segment_tree.md)
+- [Treap](docs/treap.md)
+- [Trie](docs/trie.md)
 
 適合列印的 PDF 參考資料之後可能會另外放在 [`docs/`](docs/) 目錄。
 
