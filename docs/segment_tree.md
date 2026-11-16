@@ -137,19 +137,19 @@ K-th queries descend through the difference of two prefix roots; they do not bin
 
 ## `tree2d` - dynamic 2D point values
 
-Set both closed signed 64-bit coordinate domains with `set_domain`, or set the axes separately. Any domain setter clears stored points. Let `X` and `Y` be the lengths of the two domains.
+Set both closed signed 64-bit coordinate domains with `set_domain`, or set the axes separately. Any domain setter clears stored points. The structure uses a dynamic segment tree over x; each outer node keeps a randomized treap over the y-coordinates present below it. Let `X` be the x-domain length and `P` the number of currently nonzero points.
 
 | Method | Description | Complexity |
 | --- | --- | --- |
 | `set_domain(x1, x2, y1, y2)` | Set both domains and clear data. | `O(S)` |
 | `set_x_domain(l, r)` / `set_y_domain(l, r)` | Set one domain and clear data. | `O(S)` |
-| `assign(x, y, v)` | Assign one point. | `O(log X log Y)` |
-| `add(x, y, v)` | Increment one point. | `O(log X log Y)` |
-| `query_sum(x1, x2, y1, y2)` | Sum a closed rectangle. | `O(log X log Y)` |
-| `query_mark(x1, x2, y1, y2)` | Count nonzero points in a rectangle. | `O(log X log Y)` |
-| `query_max(x1, x2, y1, y2)` | Rectangle maximum; empty cells count as zero. | `O(log X log Y)` |
+| `assign(x, y, v)` | Assign one point. | Expected `O(log(X + 1) log(P + 1))` |
+| `add(x, y, v)` | Increment one point. | Expected `O(log(X + 1) log(P + 1))` |
+| `query_sum(x1, x2, y1, y2)` | Sum a closed rectangle. | Expected `O(log(X + 1) log(P + 1))` |
+| `query_mark(x1, x2, y1, y2)` | Count nonzero points in a rectangle. | Expected `O(log(X + 1) log(P + 1))` |
+| `query_max(x1, x2, y1, y2)` | Rectangle maximum; empty cells count as zero. | Expected `O(log(X + 1) log(P + 1))` |
 
-`S` is the combined size of the existing node pools when resetting a domain. Queries require `x1 <= x2` and `y1 <= y2`.
+`S` is the combined size of the existing node pools when resetting a domain. Each active point is represented in the y-treaps along its outer x path, so storage is `O(P_peak log(X + 1))` rather than allocating a full sparse y-tree at every outer node; freed nodes are reused until the domain is reset. `P_peak` is the largest number of nonzero points held since the last domain reset. Treap operation bounds are expected because priorities are randomized. Queries require `x1 <= x2` and `y1 <= y2`.
 
 ## `beats` - Segment Tree Beats
 
