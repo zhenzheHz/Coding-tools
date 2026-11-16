@@ -57,21 +57,22 @@ cd Coding-tools
 bash install.sh
 ```
 
-### Windows (Git Bash)
+### Windows (PowerShell and Git Bash)
 
-Install Git for Windows and a MinGW GCC toolchain. The installer can find MinGW bundled with Code::Blocks in common installation locations, or use MinGW available in Git Bash's `PATH`. PowerShell and Command Prompt are not supported.
+Install [Git for Windows](https://git-scm.com/download/win) and a MinGW GCC toolchain. The installer can find MinGW bundled with Code::Blocks in common installation locations, or use MinGW available in `PATH`.
 
-Open Git Bash, then clone the project and run the installer:
+Clone the project and run the native PowerShell installer:
 
-```sh
+```powershell
 git clone https://github.com/zhenzheHz/Coding-tools.git
 cd Coding-tools
-bash install.sh
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\install.ps1
 ```
 
-Windows Git Bash support is implemented but has not yet been verified on a Windows host.
+After installation, open Git Bash to use the commands. The installer is PowerShell-based, but the commands themselves are Bash scripts and still require Git Bash.
 
-On all platforms, the installer asks for the author name used in generated source headers and adds the command directory and project paths to the shell startup file. Restart the terminal, or source the startup file named by the installer. It also detects a C compiler for the optional `.c` support in `rr`.
+The installer asks for the author name used in generated source headers and adds the command directory and project paths to the shell startup file. Restart Git Bash, or source the startup file named by the installer. It also detects a C compiler for the optional `.c` support in `rr`.
 
 ## Commands
 

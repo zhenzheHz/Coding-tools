@@ -57,21 +57,22 @@ cd Coding-tools
 bash install.sh
 ```
 
-### Windows（Git Bash）
+### Windows（PowerShell 與 Git Bash）
 
-請先安裝 Git for Windows 和 MinGW GCC。安裝程式會搜尋常見位置的 Code::Blocks 內附 MinGW，也可使用已加入 Git Bash `PATH` 的 MinGW。PowerShell 和命令提示字元不支援。
+請先安裝 [Git for Windows](https://git-scm.com/download/win) 和 MinGW GCC。安裝程式會搜尋常見位置的 Code::Blocks 內附 MinGW，也可使用已加入 `PATH` 的 MinGW。
 
-開啟 Git Bash，clone 專案並執行安裝程式：
+clone 專案後，在 PowerShell 執行原生安裝程式：
 
-```sh
+```powershell
 git clone https://github.com/zhenzheHz/Coding-tools.git
 cd Coding-tools
-bash install.sh
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\install.ps1
 ```
 
-Windows Git Bash 支援已加入，但尚未在 Windows 主機上驗證。
+安裝完成後，請開啟 Git Bash 使用指令。安裝程式本身使用 PowerShell，但指令仍是 Bash 腳本，因此執行時需要 Git Bash。
 
-所有平台的安裝程式都會詢問要寫入程式標頭的作者姓名，並將指令路徑與專案路徑加入 shell 啟動設定檔。完成後請重開終端機，或載入安裝程式提示的設定檔。安裝程式也會偵測 C 編譯器，供 `rr` 選擇性編譯 `.c` 檔使用。
+安裝程式會詢問要寫入程式標頭的作者姓名，並將指令路徑與專案路徑加入 shell 啟動設定檔。完成後請重開 Git Bash，或載入安裝程式提示的設定檔。安裝程式也會偵測 C 編譯器，供 `rr` 選擇性編譯 `.c` 檔使用。
 
 ## 指令
 
