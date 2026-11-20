@@ -15,9 +15,9 @@
 ## Data Structures
 
 | Problem | Status | Test Date | Runtime | Memory | Header |
-|:---:|:---:|:---:|:---:|:---:|:---:|
+|---|:---:|:---:|:---:|:---:|:---:|
 | [Associative Array](https://judge.yosupo.jp/problem/associative_array) | ✓ AC | 2026-11-13 | 333 ms | 97.07 MiB | [`<hash_map>`](library/hash_map.hpp) |
-| [Predecessor Problem](https://judge.yosupo.jp/problem/predecessor) | ✓ AC | 2026-11-20 | 1,414 ms | 246.68 MiB | [`<veb_tree>`](library/veb_tree.hpp) |
+| [Predecessor Problem](https://judge.yosupo.jp/problem/predecessor) | ✓ AC | 2026-11-20 | 1414 ms | 246.68 MiB | [`<veb_tree>`](library/veb_tree.hpp) |
 | [Ordered Set](https://judge.yosupo.jp/problem/ordered_set) | ✓ AC | 2026-11-12 | 408 ms | 34.30 MiB | [`<ordered_set>`](library/ordered_set.hpp) |
 | [Double-Ended Priority Queue](https://judge.yosupo.jp/problem/double_ended_priority_queue) | ✓ AC | 2026-11-20 | 143 ms | 8.66 Mib | [`<heap>`](library/heap.hpp) |
 | [Unionfind](https://judge.yosupo.jp/problem/unionfind) | ✓ AC | 2026-11-20 | 37 ms | 4.02 Mib | [`<disjoint_set>`](library/dsu/basic.hpp) |
