@@ -14,6 +14,7 @@ struct persistent {};
 struct kth {};
 struct beats {};
 struct tree2d {};
+struct coverage {};
 
 namespace detail {
 

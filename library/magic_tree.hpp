@@ -9,5 +9,6 @@
 #include "seg_tree/kth.hpp"
 #include "seg_tree/tree2d.hpp"
 #include "seg_tree/beats.hpp"
+#include "seg_tree/coverage.hpp"
 
 #endif // ZZ_LIBRARY_SEG_TREE_HPP

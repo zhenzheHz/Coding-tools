@@ -31,6 +31,7 @@ Both the class and its implementation tags live in the `zz_library` namespace. E
 | `kth` | Static order statistics and mex. |
 | `tree2d` | Dynamic 2D point values. |
 | `beats` | Segment Tree Beats. |
+| `coverage` | Coordinate-compressed interval coverage length. |
 
 The tag is a compile-time choice, not a runtime setting. Each tag exposes its own operation set, so call only methods documented for the selected implementation.
 
@@ -167,6 +168,33 @@ This type tracks current extrema, not historical extrema. `second_min` and `seco
 | `size()` / `empty()` | Return sequence length / whether it is empty. | `O(1)` |
 
 `chmin` and `chmax` are not guaranteed `O(log n)` per call; their complexity is amortized over an operation sequence. Storage is `O(n)`.
+
+## `coverage` - compressed interval coverage
+
+Initialize with strictly increasing coordinate boundaries. Leaf `i` represents the half-open interval `[coordinates[i], coordinates[i + 1])`; updates use closed indices of these elementary intervals. The tree tracks how many active ranges cover each interval and reports the total covered coordinate length. This is intended for sweep-line algorithms such as area of union of rectangles.
+
+| Method | Description | Complexity |
+| --- | --- | --- |
+| `init(boundaries)` | Replace the boundaries and clear all coverage. | `O(n)` |
+| `update(l, r, delta)` | Add `delta` coverage to compressed intervals `[l, r]`. | `O(log n)` |
+| `query_covered_length()` | Return the total covered coordinate length. | `O(1)` |
+| `size()` / `empty()` | Return the number of elementary intervals / whether it is zero. | `O(1)` |
+
+Here `n = boundaries.size() - 1`. The boundaries must be strictly increasing; with `LOCAL` or `ZZ_LIBRARY_DEBUG`, `init` checks this and `update` checks its interval. Pair removals with earlier additions over the same interval so coverage counts remain non-negative. Storage is `O(n)`.
+
+```cpp
+#include <bits/stdc++.h>
+#include <seg_tree/coverage>
+
+int main() {
+    std::vector<long long> ys{0, 2, 7, 10};
+    zz_library::Segment_tree<long long, zz_library::coverage> seg(ys);
+
+    seg.update(0, 1, 1); // Covers [0, 7).
+    long long length = seg.query_covered_length(); // 7
+    seg.update(0, 1, -1);
+}
+```
 
 ## Example: default and explicit tag
 

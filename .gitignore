@@ -8,3 +8,4 @@
 .ccb.*
 /library/testlib.h
 /docs/*.pdf
+submission.cpp
