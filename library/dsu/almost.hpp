@@ -1,214 +1,142 @@
 #ifndef ZZ_LIBRARY_DISJOINT_SET_ALMOST_HPP
 #define ZZ_LIBRARY_DISJOINT_SET_ALMOST_HPP
-
 #include "core.hpp"
-
 namespace zz_library {
-
-template<class T>
-struct disjoint_set<T, almost> {
-    static_assert(std::is_integral_v<T> && std::is_signed_v<T>);
-    using sum_type = std::conditional_t<(sizeof(T) < sizeof(std::int64_t)), std::int64_t, T>;
-
-private:
-    std::vector<T> parent, component_size;
-    std::vector<sum_type> component_sum;
-    std::vector<T> id, head, tail;
-    std::vector<T> prev_element, next_element;
-
-    T element_count = 0;
-    T component_count = 0;
-    T node_count = 0;
-
-    T find_root(T x) {
-        T root = x;
-        while (parent[root] != root) root = parent[root];
-        while (parent[x] != x) {
-            T p = parent[x];
-            parent[x] = root;
-            x = p;
+    template<class T>
+    class disjoint_set<T, almost, void> {
+        using sum_type = typename std::conditional<(sizeof(T) < 8), std::int64_t, T>::type;
+        struct Node {
+            T parent, size, head, tail;
+            sum_type sum;
+        };
+        std::vector<Node> nodes;
+        std::vector<T> id, prev, next;
+        T component_count = 0;
+        T root(T x) {
+            T& p = nodes[static_cast<std::size_t>(x)].parent;
+            return p == x ? x : p = root(p);
         }
-        return root;
-    }
-
-    T create_node(T x) {
-        T node = node_count++;
-        parent.push_back(node);
-        component_size.push_back(1);
-        component_sum.push_back(x);
-        head.push_back(x);
-        tail.push_back(x);
-        return node;
-    }
-
-    void unlink_element(T x, T root) {
-        T p = prev_element[x];
-        T q = next_element[x];
-
-        if (p == T{-1}) head[root] = q;
-        else next_element[p] = q;
-
-        if (q == T{-1}) tail[root] = p;
-        else prev_element[q] = p;
-
-        prev_element[x] = next_element[x] = T{-1};
-    }
-
-    void append_element(T x, T root) {
-        prev_element[x] = tail[root];
-        next_element[x] = T{-1};
-        next_element[tail[root]] = x;
-        tail[root] = x;
-    }
-
-    void check_index(T x) const {
-#if defined(LOCAL) || defined(ZZ_LIBRARY_DEBUG)
-        if (x < 0 || x >= element_count) { throw std::out_of_range("disjoint_set index out of range"); }
-#else
-        static_cast<void>(x);
-#endif
-    }
-
-public:
-    disjoint_set() = default;
-
-    explicit disjoint_set(T n) {
-        init(n);
-    }
-
-    // Initializes elements [0, n].
-    void init(T n) {
-#if defined(LOCAL) || defined(ZZ_LIBRARY_DEBUG)
-        if (n < 0) throw std::invalid_argument("invalid size");
-#endif
-        std::size_t m = static_cast<std::size_t>(n) + 1;
-
-        parent.resize(m);
-        component_size.assign(m, 1);
-        component_sum.resize(m);
-        id.resize(m);
-        head.resize(m);
-        tail.resize(m);
-        prev_element.assign(m, T{-1});
-        next_element.assign(m, T{-1});
-
-        std::iota(parent.begin(), parent.end(), T{0});
-        std::iota(component_sum.begin(), component_sum.end(), sum_type{0});
-        std::iota(id.begin(), id.end(), T{0});
-        std::iota(head.begin(), head.end(), T{0});
-        std::iota(tail.begin(), tail.end(), T{0});
-
-        element_count = static_cast<T>(m);
-        component_count = element_count;
-        node_count = element_count;
-    }
-
-    // Clears all elements and allocated virtual nodes.
-    void reset() {
-        parent.clear();
-        component_size.clear();
-        component_sum.clear();
-        id.clear();
-        head.clear();
-        tail.clear();
-        prev_element.clear();
-        next_element.clear();
-
-        element_count = 0;
-        component_count = 0;
-        node_count = 0;
-    }
-
-    T size() const {
-        return element_count;
-    }
-
-    T components() const {
-        return component_count;
-    }
-
-    // Returns an original element in x's component.
-    T find(T x) {
-        check_index(x);
-        return head[find_root(id[x])];
-    }
-
-    bool check(T x, T y) {
-        check_index(x);
-        check_index(y);
-        return find_root(id[x]) == find_root(id[y]);
-    }
-
-    bool merge(T x, T y) {
-        check_index(x); check_index(y);
-        x = find_root(id[x]), y = find_root(id[y]);
-        if (x == y) return false;
-        if (component_size[x] < component_size[y]) std::swap(x, y);
-        parent[y] = x;
-        component_size[x] += component_size[y];
-        component_sum[x] += component_sum[y];
-        next_element[tail[x]] = head[y];
-        prev_element[head[y]] = tail[x];
-        tail[x] = tail[y];
-        --component_count;
-        return true;
-    }
-
-    // Moves x into y's component.
-    bool shift(T x, T y) {
-        check_index(x); check_index(y);
-        T rx = find_root(id[x]), ry = find_root(id[y]);
-        if (rx == ry) return false;
-        unlink_element(x, rx);
-        --component_size[rx];
-        component_sum[rx] -= x;
-        T node = create_node(x);
-        id[x] = node;
-        parent[node] = ry;
-        ++component_size[ry];
-        component_sum[ry] += x;
-        append_element(x, ry);
-        if (component_size[rx] == 0) --component_count;
-        return true;
-    }
-
-    // Detaches x into a singleton component.
-    bool reset(T x) {
-        check_index(x);
-        T root = find_root(id[x]);
-        if (component_size[root] == 1) return false;
-        unlink_element(x, root);
-        --component_size[root];
-        component_sum[root] -= x;
-        T node = create_node(x);
-        id[x] = node;
-        ++component_count;
-        return true;
-    }
-
-    T count(T x) {
-        check_index(x);
-        return component_size[find_root(id[x])];
-    }
-
-    sum_type get_sum(T x) {
-        check_index(x);
-        return component_sum[find_root(id[x])];
-    }
-
-    std::vector<T> group(T x) {
-        check_index(x);
-        T root = find_root(id[x]);
-        std::vector<T> result;
-        result.reserve(static_cast<std::size_t>(component_size[root]));
-        for (T v = head[root]; v != T{-1}; v = next_element[v]) {
-            result.push_back(v);
+        T new_node(T x) {
+            T p = static_cast<T>(nodes.size());
+            nodes.push_back({p, 1, x, x, static_cast<sum_type>(x)});
+            return p;
         }
-        std::sort(result.begin(), result.end());
-        return result;
-    }
-};
-
+        void detach(T x, T r) {
+            T p = prev[static_cast<std::size_t>(x)], q = next[static_cast<std::size_t>(x)];
+            if (p == -1) nodes[static_cast<std::size_t>(r)].head = q;
+            else next[static_cast<std::size_t>(p)] = q;
+            if (q == -1) nodes[static_cast<std::size_t>(r)].tail = p;
+            else prev[static_cast<std::size_t>(q)] = p;
+            prev[static_cast<std::size_t>(x)] = next[static_cast<std::size_t>(x)] = -1;
+            --nodes[static_cast<std::size_t>(r)].size;
+            nodes[static_cast<std::size_t>(r)].sum -= static_cast<sum_type>(x);
+        }
+        void append(T x, T r) {
+            T tail = nodes[static_cast<std::size_t>(r)].tail;
+            prev[static_cast<std::size_t>(x)] = tail;
+            next[static_cast<std::size_t>(x)] = -1;
+            if (tail == -1) nodes[static_cast<std::size_t>(r)].head = x;
+            else next[static_cast<std::size_t>(tail)] = x;
+            nodes[static_cast<std::size_t>(r)].tail = x;
+            ++nodes[static_cast<std::size_t>(r)].size;
+            nodes[static_cast<std::size_t>(r)].sum += static_cast<sum_type>(x);
+        }
+    public:
+        disjoint_set() = default;
+        explicit disjoint_set(T n) {
+            init(n);
+        }
+        void init(T n) {
+            std::size_t m = detail::dsu_index<T>::checked_size(n);
+            nodes.clear();
+            id.resize(m);
+            prev.assign(m, -1);
+            next.assign(m, -1);
+            nodes.reserve(m);
+            for (std::size_t i = 0; i < m; ++i) {
+                id[i] = static_cast<T>(i);
+                nodes.push_back({static_cast<T>(i), 1, static_cast<T>(i), static_cast<T>(i), static_cast<sum_type>(i)});
+            }
+            component_count = static_cast<T>(m);
+        }
+        void reset() {
+            nodes.clear();
+            id.clear();
+            prev.clear();
+            next.clear();
+            component_count = 0;
+        }
+        T size() const {
+            return static_cast<T>(id.size());
+        }
+        T components() const {
+            return component_count;
+        }
+        T find(T x) {
+            detail::dsu_index<T>::check(x, id.size());
+            return nodes[static_cast<std::size_t>(root(id[static_cast<std::size_t>(x)]))].head;
+        }
+        bool check(T x, T y) {
+            detail::dsu_index<T>::check(x, id.size());
+            detail::dsu_index<T>::check(y, id.size());
+            return root(id[static_cast<std::size_t>(x)]) == root(id[static_cast<std::size_t>(y)]);
+        }
+        bool merge(T x, T y) {
+            detail::dsu_index<T>::check(x, id.size());
+            detail::dsu_index<T>::check(y, id.size());
+            x = root(id[static_cast<std::size_t>(x)]);
+            y = root(id[static_cast<std::size_t>(y)]);
+            if (x == y) return false;
+            if (nodes[static_cast<std::size_t>(x)].size < nodes[static_cast<std::size_t>(y)].size) std::swap(x, y);
+            Node& a = nodes[static_cast<std::size_t>(x)];
+            Node& b = nodes[static_cast<std::size_t>(y)];
+            next[static_cast<std::size_t>(a.tail)] = b.head;
+            prev[static_cast<std::size_t>(b.head)] = a.tail;
+            a.tail = b.tail;
+            a.size += b.size;
+            a.sum += b.sum;
+            b.parent = x;
+            --component_count;
+            return true;
+        }
+        bool shift(T x, T y) {
+            detail::dsu_index<T>::check(x, id.size());
+            detail::dsu_index<T>::check(y, id.size());
+            T a = root(id[static_cast<std::size_t>(x)]), b = root(id[static_cast<std::size_t>(y)]);
+            if (a == b) return false;
+            detach(x, a);
+            if (nodes[static_cast<std::size_t>(a)].size == 0) --component_count;
+            T fresh = new_node(x);
+            id[static_cast<std::size_t>(x)] = fresh;
+            nodes[static_cast<std::size_t>(fresh)].parent = b;
+            nodes[static_cast<std::size_t>(fresh)].size = 0;
+            nodes[static_cast<std::size_t>(fresh)].head = nodes[static_cast<std::size_t>(fresh)].tail = -1;
+            nodes[static_cast<std::size_t>(fresh)].sum = 0;
+            append(x, b);
+            return true;
+        }
+        bool reset(T x) {
+            detail::dsu_index<T>::check(x, id.size());
+            T a = root(id[static_cast<std::size_t>(x)]);
+            if (nodes[static_cast<std::size_t>(a)].size == 1) return false;
+            detach(x, a);
+            T fresh = new_node(x);
+            id[static_cast<std::size_t>(x)] = fresh;
+            ++component_count;
+            return true;
+        }
+        T count(T x) {
+            return nodes[static_cast<std::size_t>(root(id[static_cast<std::size_t>(x)]))].size;
+        }
+        sum_type get_sum(T x) {
+            return nodes[static_cast<std::size_t>(root(id[static_cast<std::size_t>(x)]))].sum;
+        }
+        std::vector<T> group(T x) {
+            T r = root(id[static_cast<std::size_t>(x)]);
+            std::vector<T> result;
+            for (std::size_t i = 0; i < id.size(); ++i) if (root(id[i]) == r) result.push_back(static_cast<T>(i));
+            return result;
+        }
+    };
 }
-
 #endif

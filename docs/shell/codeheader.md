@@ -1,16 +1,22 @@
 # `codeheader` Command
 
-`codeheader` prints the author/date comment used at the top of generated
+## Purpose
+
+`codeheader` prints the author and date comment used at the top of generated
 source files.
 
-## Usage
+## Usage and arguments
 
 ```sh
 codeheader [prefix] [label]
 ```
 
-The default prefix is `//`. Use `#` for a Python comment. `CP_AUTHOR` sets the
-author; if unset, the command uses `$USER` and then `unknown`.
+| Argument | Description |
+| --- | --- |
+| `prefix` | Comment prefix; defaults to `//`. Use `#` for Python. |
+| `label` | Optional extra comment text. The special value `c` prints a `Pre-compiled :` timestamp label. |
+
+Examples:
 
 ```sh
 codeheader
@@ -19,5 +25,7 @@ codeheader '//' Main
 codeheader '//' c
 ```
 
-The second argument `c` prints a `Pre-compiled :` timestamp label. Any other
-second argument is printed as an additional comment line.
+## Environment
+
+`CP_AUTHOR` sets the author name. If unset, the command uses `$USER`, then
+`unknown` if `$USER` is also unset.

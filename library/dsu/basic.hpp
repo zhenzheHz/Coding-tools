@@ -1,113 +1,69 @@
 #ifndef ZZ_LIBRARY_DISJOINT_SET_BASIC_HPP
 #define ZZ_LIBRARY_DISJOINT_SET_BASIC_HPP
-
 #include "core.hpp"
-
 namespace zz_library {
-
-template<class T>
-struct disjoint_set<T, basic> {
-    static_assert(std::is_integral_v<T> && std::is_signed_v<T>);
-
-    std::vector<T> parent, component_size;
-    T component_count = 0;
-    T largest_size = 0;
-
-    disjoint_set() = default;
-
-    explicit disjoint_set(T n) {
-        init(n);
-    }
-
-    void init(T n) {
-#if defined(LOCAL) || defined(ZZ_LIBRARY_DEBUG)
-        if (n < 0) throw std::invalid_argument("invalid size");
-#endif
-        parent.resize(static_cast<std::size_t>(n) + 1);
-        component_size.assign(parent.size(), 1);
-        std::iota(parent.begin(), parent.end(), T{0});
-        component_count = static_cast<T>(parent.size());
-        largest_size = parent.empty() ? 0 : 1;
-    }
-
-    void reset() {
-        parent.clear();
-        component_size.clear();
-        component_count = 0;
-        largest_size = 0;
-    }
-
-    T size() const {
-        return component_count;
-    }
-
-    T find(T x) {
-        check_index(x);
-
-        T root = x;
-        while (parent[root] != root) {
-            root = parent[root];
+    template<class T>
+    class disjoint_set<T, basic, void> {
+        std::vector<T> parent, comp_size;
+        T components = 0, largest = 0;
+        T root(T x) {
+            return parent[static_cast<std::size_t>(x)] == x ? x : parent[static_cast<std::size_t>(x)] = root(parent[static_cast<std::size_t>(x)]);
         }
-
-        while (parent[x] != x) {
-            T p = parent[x];
-            parent[x] = root;
-            x = p;
+    public:
+        using value_type = T;
+        disjoint_set() = default;
+        explicit disjoint_set(T n) {
+            init(n);
         }
-
-        return root;
-    }
-
-    bool check(T x, T y) {
-        return find(x) == find(y);
-    }
-
-    bool merge(T x, T y) {
-        x = find(x), y = find(y);
-        if (x == y) return false;
-        if (component_size[x] < component_size[y]) {
-            std::swap(x, y);
+        void init(T n) {
+            std::size_t m = detail::dsu_index<T>::checked_size(n);
+            parent.resize(m);
+            comp_size.assign(m, 1);
+            for (std::size_t i = 0; i < m; ++i) parent[i] = static_cast<T>(i);
+            components = static_cast<T>(m);
+            largest = m ? 1 : 0;
         }
-        parent[y] = x;
-        component_size[x] += component_size[y];
-        largest_size = std::max(largest_size, component_size[x]);
-        --component_count;
-        return true;
-    }
-
-    T count(T x) {
-        return component_size[find(x)];
-    }
-
-    T max_size() const {
-        return largest_size;
-    }
-
-    std::vector<T> group(T x) {
-        T root = find(x);
-        std::vector<T> result;
-        result.reserve(static_cast<std::size_t>(component_size[root]));
-        for (std::size_t i = 0; i < parent.size(); ++i) {
-            T v = static_cast<T>(i);
-            if (find(v) == root) {
-                result.push_back(v);
-            }
+        void reset() {
+            parent.clear();
+            comp_size.clear();
+            components = largest = 0;
         }
-        return result;
-    }
-
-private:
-    void check_index(T x) const {
-#if defined(LOCAL) || defined(ZZ_LIBRARY_DEBUG)
-        if (x < 0 || static_cast<std::size_t>(x) >= parent.size()) {
-            throw std::out_of_range("disjoint_set index out of range");
+        T find(T x) {
+            detail::dsu_index<T>::check(x, parent.size());
+            return root(x);
         }
-#else
-        static_cast<void>(x);
-#endif
-    }
-};
-
+        bool check(T x, T y) {
+            return find(x) == find(y);
+        }
+        bool merge(T x, T y) {
+            x = find(x);
+            y = find(y);
+            if (x == y) return false;
+            if (comp_size[static_cast<std::size_t>(x)] < comp_size[static_cast<std::size_t>(y)]) std::swap(x, y);
+            parent[static_cast<std::size_t>(y)] = x;
+            comp_size[static_cast<std::size_t>(x)] += comp_size[static_cast<std::size_t>(y)];
+            largest = std::max(largest, comp_size[static_cast<std::size_t>(x)]);
+            --components;
+            return true;
+        }
+        T count_of(T x) {
+            return comp_size[static_cast<std::size_t>(find(x))];
+        }
+        T count(T x) {
+            return count_of(x);
+        }
+        T size() const {
+            return components;
+        }
+        T max_size() const {
+            return largest;
+        }
+        std::vector<T> group(T x) {
+            T r = find(x);
+            std::vector<T> result;
+            for (std::size_t i = 0; i < parent.size(); ++i) if (root(static_cast<T>(i)) == r) result.push_back(static_cast<T>(i));
+            return result;
+        }
+    };
 }
-
 #endif

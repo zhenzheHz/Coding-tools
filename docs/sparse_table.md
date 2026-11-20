@@ -2,7 +2,7 @@
 
 ## Include and select an operation
 
-Include `<bits/stdc++.h>` before the library header. The extensionless header
+Include `<bits/stdc++.h>` before the library. The extensionless header
 `<sparse_table>` includes `sparse_table.hpp`.
 
 ```cpp
@@ -17,32 +17,35 @@ int main() {
 }
 ```
 
-The public type is `zz_library::sparse_table<T, Type>`. Choose one operation
-tag explicitly:
+## Template parameters and namespace
 
-| Type | Query |
+The public type is `zz_library::sparse_table<T, Type>`. `T` is the element
+type; `Type` selects the compile-time operation. There is no default operation
+tag. All tags and the class live in the `zz_library` namespace.
+
+| Type tag | Query API | Requirements |
+| --- | --- | --- |
+| `RMQ` | `query_min(l, r)` and `query_max(l, r)` | `T` supports `<`. |
+| `GCD` | `query(l, r)` | `T` is supported by `std::gcd`. |
+| `AND` | `query(l, r)` | `T` supports bitwise `&`. |
+| `OR` | `query(l, r)` | `T` supports bitwise `|`. |
+
+## Shared conventions and complexity
+
+All types support construction from `std::vector<T>`, `init(values)`, `size()`,
+and `empty()`. Indices are zero-based and query intervals are closed `[l, r]`.
+Queries require a non-empty valid range. In debug mode (`LOCAL` or
+`ZZ_LIBRARY_DEBUG`), invalid ranges throw `std::out_of_range`.
+
+| Operation | Complexity |
 | --- | --- |
-| `RMQ` | `query_min(l, r)` and `query_max(l, r)` |
-| `GCD` | `query(l, r)` for the range GCD |
-| `AND` | `query(l, r)` for bitwise AND |
-| `OR` | `query(l, r)` for bitwise OR |
+| Build / `init(values)` | `O(n log n)` time and memory. `RMQ` stores separate min and max tables. |
+| Range query | `O(1)` |
+| `size()` / `empty()` | `O(1)` |
 
-All tags support construction from a `std::vector<T>`, `init(values)`,
-`size()`, and `empty()`. `RMQ` stores separate min and max tables; the other
-tags store one table.
-
-## Range and complexity
-
-Indices are zero-based and query intervals are closed `[l, r]`. The structure
-is static: build it once, then answer queries in `O(1)`. Initialization takes
-`O(n log n)` time and memory (`RMQ` stores two tables, so its constant factor is
-larger). Empty ranges and out-of-bounds indices are rejected in debug mode when
-compiled with `LOCAL` or `ZZ_LIBRARY_DEBUG`; queries require a non-empty range.
-
-Sparse-table queries combine two overlapping blocks. This is valid for the
-provided idempotent operations (minimum, maximum, GCD, bitwise AND, and bitwise
-OR). The class does not provide point updates; call `init` to replace the
-entire sequence.
+Queries combine two overlapping blocks; this works for the supported idempotent
+operations: minimum, maximum, GCD, bitwise AND, and bitwise OR. The structure is
+static; call `init` to replace the sequence.
 
 ## Other operation tags
 
@@ -53,6 +56,3 @@ int divisor = gcd_table.query(0, 3);
 zz_library::sparse_table<unsigned, zz_library::AND> and_table(bits);
 unsigned common_bits = and_table.query(0, 3);
 ```
-
-`GCD` requires an integer type supported by `std::gcd`. `AND` and `OR` require
-types that support the corresponding bitwise operators.

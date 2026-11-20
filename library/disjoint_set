@@ -1,1 +1,4 @@
-#include "disjoint_set.hpp"
+#ifndef ZZ_LIBRARY_DISJOINT_SET_ENTRY
+#define ZZ_LIBRARY_DISJOINT_SET_ENTRY
+#include "dsu/disjoint_set.hpp"
+#endif

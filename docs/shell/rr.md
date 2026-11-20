@@ -1,33 +1,33 @@
 # `rr` Command
 
-`rr` compiles and runs a C++ or C source file, or runs a Python script. It
-remembers the source created or selected by `mkcpp` or `mkpy`.
+## Purpose
 
-## Usage
+`rr` compiles and runs a C++ or C source file, or runs a Python script. It can
+use the source remembered by `mkcpp` or `mkpy`.
+
+## Usage and arguments
 
 ```sh
 rr [file]
 ```
 
-With no argument, `rr` uses the source path stored in `.cp-tools-current`. Pass
-a file path to run a different source. The supported extensions are `.cpp`,
-`.c`, and `.py`. If the path has no recognized extension, `.cpp` is appended.
-For example, `rr A` selects `A.cpp`.
-
-Only one source path can be passed. The source file must exist.
+With no argument, `rr` uses the source path stored in `.cp-tools-current`. A
+file path selects another source. Supported extensions are `.cpp`, `.c`, and
+`.py`; if no recognized extension is present, `.cpp` is appended. Only one
+source path can be passed, and the source file must exist.
 
 ## Build and run behavior
 
 | Source | Behavior |
 | --- | --- |
-| `.cpp` | Compiles as C++17 with `-O2 -Wall -Wextra -DLOCAL` and the project library include path, then runs the executable. Set `CXX` to choose another C++ compiler. Set `CP_INCLUDE` or `CP_LIBRARY` to override the include path. |
-| `.c` | Compiles as C17 with `-O2 -Wall -Wextra`, then runs the executable. Set `CC` to choose another C compiler. |
-| `.py` | Runs the script with `${PYTHON:-python3}`. Set `PYTHON` to choose another Python interpreter. |
+| `.cpp` | Compile as C++17 with `-O2 -Wall -Wextra -DLOCAL` and the project library include path, then run the executable. |
+| `.c` | Compile as C17 with `-O2 -Wall -Wextra`, then run the executable. |
+| `.py` | Run with `${PYTHON:-python3}`. |
 
-Compilation failures are reported as `Compilation error`. The command displays
-the program's stdout and stderr, elapsed time, and exit code. Its own exit code
-matches the program's exit code; a missing source, unsupported extension,
-compiler failure, or missing Python interpreter returns a nonzero status.
+The command displays program stdout and stderr, elapsed time, and exit code.
+Its exit code matches the program's exit code. A missing source, unsupported
+extension, compiler failure, or missing Python interpreter returns a nonzero
+status. Compilation failures are reported as `Compilation error`.
 
 ## Input redirection
 
@@ -40,8 +40,14 @@ rr A.c < A_test01.in
 rr A.py < A_test01.in
 ```
 
-The program output is captured by `rr` and displayed with stdout/stderr labels
-and a timing summary.
+## Environment
+
+| Variable | Purpose |
+| --- | --- |
+| `CXX` | Select the C++ compiler. |
+| `CC` | Select the C compiler. |
+| `CP_INCLUDE` / `CP_LIBRARY` | Override the library include path. |
+| `PYTHON` | Select the Python interpreter. |
 
 ## Examples
 

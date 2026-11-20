@@ -130,6 +130,7 @@ ccb A.cpp > A_precompiled.cpp
 | Sparse Table | `<sparse_table>` | [Documentation](docs/sparse_table.md) |
 | Treap | `<treap>` | [Documentation](docs/treap.md) |
 | Trie | `<trie>` | [Documentation](docs/trie.md) |
+| van Emde Boas Tree | `<veb_tree>` | [Documentation](docs/van_emde_boas.md) |
 
 ### Math
 

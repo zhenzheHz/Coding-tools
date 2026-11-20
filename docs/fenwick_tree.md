@@ -2,7 +2,8 @@
 
 ## Include and construct
 
-Include `<bits/stdc++.h>` before the library. The extensionless header `<fenwick>` includes `fenwick.hpp`.
+Include `<bits/stdc++.h>` before the library. The extensionless header
+`<fenwick>` includes `fenwick.hpp`.
 
 ```cpp
 #include <bits/stdc++.h>
@@ -16,18 +17,29 @@ int main() {
 }
 ```
 
-The structure uses two Fenwick arrays to support range addition and range-sum queries. Indices are zero-based, and intervals are closed `[l, r]`.
+## Template parameter and namespace
+
+The public type is `zz_library::fenwick_tree<T>`. `T` is the stored value and
+sum type. The class is in the `zz_library` namespace.
+
+## Shared conventions
+
+- Indices are zero-based and ranges are closed `[l, r]`.
+- The structure uses two Fenwick arrays to support range addition and range-sum queries.
+- Valid ranges satisfy `0 <= l <= r < n`; point indices satisfy `0 <= i < n`.
+- Define `LOCAL` or `ZZ_LIBRARY_DEBUG` before including the header to enable bounds checks. Invalid indices and ranges throw `std::out_of_range` in debug mode.
+- `T` must support addition, subtraction, unary negation, and multiplication by a `T`-convertible index. It must hold intermediate sums without overflow.
 
 ## Methods
 
 | Method | Description | Complexity |
 | --- | --- | --- |
 | `init(const std::vector<T>& values)` | Build from the initial sequence using a linear Fenwick build. | `O(n)` |
-| `set(i, v)` | Assign `a[i] = v`. | `O(log n)` |
-| `add(i, v)` | Add `v` to `a[i]`. | `O(log n)` |
-| `update(l, r, x)` | Add `x` to every element in `[l, r]`. | `O(log n)` |
+| `set(i, value)` | Assign `a[i] = value`. | `O(log n)` |
+| `add(i, value)` | Add `value` to `a[i]`. | `O(log n)` |
+| `update(l, r, value)` | Add `value` to every element in `[l, r]`. | `O(log n)` |
 | `query(l, r)` | Return the sum of `[l, r]`. | `O(log n)` |
 
-Valid ranges satisfy `0 <= l <= r < n`; point indices satisfy `0 <= i < n`. In debug mode, invalid indices and ranges throw standard exceptions. Define `LOCAL` or `ZZ_LIBRARY_DEBUG` before including the header to enable checks.
-
-`set` reads the current point value, then applies the difference as a point range-add. The structure stores no separate array of point values. `T` must support addition, subtraction, multiplication by an index, and represent all intermediate sums without overflow. Space is `O(n)`.
+`set` reads the current point value, then applies the difference as a point
+range-add. The structure stores no separate array of point values. Storage is
+`O(n)`.
