@@ -29,17 +29,19 @@ Both the class and its implementation tags live in the `zz_library` namespace. E
 | `domain` | Dynamic tree over a configured coordinate interval. |
 | `persistent` | Branchable versions of a sequence tree. |
 | `kth` | Static order statistics and mex. |
-| `tree2d` | Dynamic 2D point values. |
+| `xy_plane` | Dynamic 2D point values. |
 | `beats` | Segment Tree Beats. |
 | `coverage` | Coordinate-compressed interval coverage length. |
 
 The tag is a compile-time choice, not a runtime setting. Each tag exposes its own operation set, so call only methods documented for the selected implementation.
 
+`monoid_tree<T, op, e>` is also available as an independent iterative tree. It is not selected through a `Segment_tree` type tag. Include `<seg_tree/monoid_tree>` directly or use the `<magic_tree>` umbrella.
+
 ## Shared conventions
 
 - Sequence indices are zero-based; sequence intervals are closed `[l, r]`.
 - `where_min` and `where_max` return the leftmost index on ties.
-- `domain` and `tree2d` use configured, closed coordinate intervals.
+- `domain` and `xy_plane` use configured, closed coordinate intervals.
 - `lazy` covers indices `[0, 1,000,000,000]`.
 - Define `LOCAL` (for example, compile with `-DLOCAL`) to enable debug checks. Without `LOCAL` or `ZZ_LIBRARY_DEBUG`, checks are compiled out.
 - Select a numeric `T` that supports the required arithmetic and can hold range sums. `query_gcd` requires an integer-like type supporting `%`.
@@ -136,7 +138,7 @@ Initialize once; this type has no update methods. `k` starts at 1 and counts dup
 
 K-th queries descend through the difference of two prefix roots; they do not binary-search the answer. `query_mex` requires integer-valued data. Choose `T` wide enough for the sum.
 
-## `tree2d` - dynamic 2D point values
+## `xy_plane` - dynamic 2D point values
 
 Set both closed signed 64-bit coordinate domains with `set_domain`, or set the axes separately. Any domain setter clears stored points. The structure uses a dynamic segment tree over x; each outer node keeps an AVL tree over the y-coordinates present below it. Let `X` be the x-domain length and `P` the number of currently nonzero points.
 
@@ -193,6 +195,46 @@ int main() {
     seg.update(0, 1, 1); // Covers [0, 7).
     long long length = seg.query_covered_length(); // 7
     seg.update(0, 1, -1);
+}
+```
+
+## `monoid_tree` - iterative monoid tree
+
+`zz_library::monoid_tree<T, op, e>` stores a sequence of `T` values and combines them with the associative operation `op`; `e()` supplies its identity. Both `op` and `e` are compile-time function arguments. `op` must preserve operand order, so this tree supports non-commutative monoids such as function composition. Ranges are closed, and `prod(l, l - 1)` is the empty product.
+
+| Method | Description | Complexity |
+| --- | --- | --- |
+| `monoid_tree(values)` / `monoid_tree(n)` | Initialize from values or create `n` identity elements. | `O(n)` |
+| `init(values)` / `init(n)` | Replace the sequence; `init(n)` fills it with `e()`. | `O(n)` |
+| `set(i, x)` | Replace one element. | `O(log n)` |
+| `get(i)` | Return one element. | `O(1)` |
+| `prod(l, r)` | Return the ordered product over `[l, r]`. | `O(log n)` |
+| `all_prod()` | Return the product of the entire sequence. | `O(1)` |
+| `max_right(l, predicate)` | Find the last inclusive endpoint whose product from `l` satisfies the predicate. | `O(log n)` |
+| `min_left(r, predicate)` | Find the first inclusive start whose product through `r` satisfies the predicate. | `O(log n)` |
+| `size()` / `empty()` | Return sequence length / whether it is empty. | `O(1)` |
+
+For boundary searches, `predicate(e())` must be true, and once the predicate becomes false while extending the range, it must remain false. `max_right` returns `l - 1` if no element can be included and `n - 1` if the entire suffix is valid. `min_left` returns `r + 1` if no element can be included and `0` if the entire prefix is valid. A default-constructed tree is empty and has `e()` as its `all_prod()`.
+
+```cpp
+#include <bits/stdc++.h>
+#include <seg_tree/monoid_tree>
+
+std::string concatenate(std::string left, std::string right) {
+    return left + right;
+}
+
+std::string empty_string() {
+    return {};
+}
+
+int main() {
+    using Tree = zz_library::monoid_tree<std::string, concatenate, empty_string>;
+    Tree tree(std::vector<std::string>{"a", "b", "c"});
+
+    tree.set(1, "x");
+    std::string middle = tree.prod(1, 2); // "xc"
+    int right = tree.max_right(0, [](const std::string& s) { return s.size() <= 2; }); // 1
 }
 ```
 

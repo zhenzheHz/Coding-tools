@@ -30,9 +30,9 @@
 | [Static RMQ](https://judge.yosupo.jp/problem/staticrmq) | ✓ AC | 2026-11-20 | 235 ms | 89.80 Mib | [`<seg_tree/zkw>`](/library/seg_tree/zkw.hpp) |
 | [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum) | ✓ AC | 2026-11-20 | 610 ms | 89.55 Mib | [`<seg_tree/zkw>`](/library/seg_tree/zkw.hpp) |
 | [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum) | ✓ AC | 2026-11-20 | 785 ms | 92.94 Mib | [`<seg_tree/lazy>`](/library/seg_tree/lazy.hpp) |
-| [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum) | ✓ AC | 2026-11-20 | 134 ms | 15.83 Mib | [`<fenwick_tree>`](/library/feniwck_tree.hpp) |
-| [Point Set Range Composite](https://judge.yosupo.jp/problem/point_set_range_composite) | - | - | - | - | - |
-| [Point Set Range Composite (Large Array)](https://judge.yosupo.jp/problem/point_set_range_composite_large_array) | - | - | - | - | - |
+| [Point Add Range Sum](https://judge.yosupo.jp/problem/point_add_range_sum) | ✓ AC | 2026-11-20 | 134 ms | 15.83 Mib | [`<fenwick>`](/library/feniwck_tree.hpp) |
+| [Point Set Range Composite](https://judge.yosupo.jp/problem/point_set_range_composite) | ✓ AC | 2026-11-20 | 238 ms | 26.80 Mib | [`<seg_tree/monoid_tree>`](/library/seg_tree/monoid_tree.hpp) |
+| [Point Set Range Composite (Large Array)](https://judge.yosupo.jp/problem/point_set_range_composite_large_array) | ✓ AC | 2026-11-20 | 292 ms | 47.58 Mib | [`<seg_tree/monoid_tree>`](/library/seg_tree/monoid_tree.hpp) |
 | [Range Affine Point Get](https://judge.yosupo.jp/problem/range_affine_point_get) | ✓ AC | 2026-11-13 | 2131 ms | 68.27 Mib | [`<treap>`](/library/treap.hpp) |
 | [Range Affine Range Sum](https://judge.yosupo.jp/problem/range_affine_range_sum) | ✓ AC | 2026-11-13 | 3020 ms | 68.34 Mib | [`<treap>`](/library/treap.hpp) |
 | [Range Affine Range Sum (Large Array)](https://judge.yosupo.jp/problem/range_affine_range_sum_large_array) | - | - | - | - | - |
@@ -56,7 +56,7 @@
 | [Static Range Inversions Query](https://judge.yosupo.jp/problem/static_range_inversions_query) | - | - | - | - | - |
 | [Point Set Range Frequency](https://judge.yosupo.jp/problem/point_set_range_frequency) | - | - | - | - | - |
 | [Rectangle Sum](https://judge.yosupo.jp/problem/rectangle_sum) | - | - | - | - | - |
-| [Point Add Rectangle Sum](https://judge.yosupo.jp/problem/point_add_rectangle_sum) | ✓ AC | 2026-11-17 | 3229 ms | 560.15 Mib | [`<seg_tree/tree2d>`](/library/seg_tree/tree2d.hpp) |
+| [Point Add Rectangle Sum](https://judge.yosupo.jp/problem/point_add_rectangle_sum) | ✓ AC | 2026-11-17 | 3229 ms | 560.15 Mib | [`<seg_tree/xy_plane>`](/library/seg_tree/xy_plane.hpp) |
 | [Rectangle Add Point Get](https://judge.yosupo.jp/problem/rectangle_add_point_get) | - | - | - | - | - |
 | [Static Rectangle Add Rectangle Sum](https://judge.yosupo.jp/problem/static_rectangle_add_rectangle_sum) | - | - | - | - | - |
 | [Dynamic Point Rectangle Affine Rectangle Sum](https://judge.yosupo.jp/problem/dynamic_point_set_rectangle_affine_rectangle_sum) | - | - | - | - | - |

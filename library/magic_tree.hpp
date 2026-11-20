@@ -7,8 +7,9 @@
 #include "seg_tree/domain.hpp"
 #include "seg_tree/persistent.hpp"
 #include "seg_tree/kth.hpp"
-#include "seg_tree/tree2d.hpp"
+#include "seg_tree/xy_plane.hpp"
 #include "seg_tree/beats.hpp"
 #include "seg_tree/coverage.hpp"
+#include "seg_tree/monoid_tree.hpp"
 
 #endif // ZZ_LIBRARY_SEG_TREE_HPP

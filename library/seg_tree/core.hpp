@@ -13,7 +13,7 @@ struct domain {};
 struct persistent {};
 struct kth {};
 struct beats {};
-struct tree2d {};
+struct xy_plane {};
 struct coverage {};
 
 namespace detail {

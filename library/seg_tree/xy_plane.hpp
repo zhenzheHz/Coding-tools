@@ -1,12 +1,12 @@
-#ifndef ZZ_LIBRARY_SEG_TREE_TREE2D_HPP
-#define ZZ_LIBRARY_SEG_TREE_TREE2D_HPP
+#ifndef ZZ_LIBRARY_SEG_TREE_XY_PLANE_HPP
+#define ZZ_LIBRARY_SEG_TREE_XY_PLANE_HPP
 
 #include "core.hpp"
 
 namespace zz_library {
 
 template <class T>
-class Segment_tree<T, tree2d> {
+class Segment_tree<T, xy_plane> {
 private:
     // Each outer x-node owns a y-AVL tree. A y-node stores the aggregate for
     // that y-coordinate and the subtree aggregate over y.
@@ -58,24 +58,24 @@ private:
 #ifdef ZZ_LIBRARY_DEBUG
     void check_domains() const {
         if (!has_x_domain || !has_y_domain) {
-            throw std::logic_error("zz_library::Segment_tree< T, tree2d >: set both domains first");
+            throw std::logic_error("zz_library::Segment_tree< T, xy_plane >: set both domains first");
         }
     }
 
     void check_point(std::int64_t x, std::int64_t y) const {
         check_domains();
         if (x < x_left || x > x_right || y < y_left || y > y_right) {
-            throw std::out_of_range("zz_library::Segment_tree< T, tree2d >: point out of range");
+            throw std::out_of_range("zz_library::Segment_tree< T, xy_plane >: point out of range");
         }
     }
 
     void check_rectangle(std::int64_t x1, std::int64_t x2, std::int64_t y1, std::int64_t y2) const {
         check_domains();
         if (x1 > x2 || y1 > y2) {
-            throw std::invalid_argument("zz_library::Segment_tree< T, tree2d >: invalid rectangle order");
+            throw std::invalid_argument("zz_library::Segment_tree< T, xy_plane >: invalid rectangle order");
         }
         if (x1 < x_left || x2 > x_right || y1 < y_left || y2 > y_right) {
-            throw std::out_of_range("zz_library::Segment_tree< T, tree2d >: rectangle out of range");
+            throw std::out_of_range("zz_library::Segment_tree< T, xy_plane >: rectangle out of range");
         }
     }
 #endif
@@ -399,7 +399,7 @@ public:
                     std::int64_t new_y_left, std::int64_t new_y_right) {
 #ifdef ZZ_LIBRARY_DEBUG
         if (new_x_left > new_x_right || new_y_left > new_y_right) {
-            throw std::invalid_argument("zz_library::Segment_tree< T, tree2d >: invalid domain");
+            throw std::invalid_argument("zz_library::Segment_tree< T, xy_plane >: invalid domain");
         }
 #endif
         reset_storage();
@@ -414,7 +414,7 @@ public:
     void set_x_domain(std::int64_t left, std::int64_t right) {
 #ifdef ZZ_LIBRARY_DEBUG
         if (left > right) {
-            throw std::invalid_argument("zz_library::Segment_tree< T, tree2d >: invalid x domain");
+            throw std::invalid_argument("zz_library::Segment_tree< T, xy_plane >: invalid x domain");
         }
 #endif
         reset_storage();
@@ -426,7 +426,7 @@ public:
     void set_y_domain(std::int64_t left, std::int64_t right) {
 #ifdef ZZ_LIBRARY_DEBUG
         if (left > right) {
-            throw std::invalid_argument("zz_library::Segment_tree< T, tree2d >: invalid y domain");
+            throw std::invalid_argument("zz_library::Segment_tree< T, xy_plane >: invalid y domain");
         }
 #endif
         reset_storage();
@@ -466,4 +466,4 @@ public:
 
 } // namespace zz_library
 
-#endif // ZZ_LIBRARY_SEG_TREE_TREE2D_HPP
+#endif // ZZ_LIBRARY_SEG_TREE_XY_PLANE_HPP
