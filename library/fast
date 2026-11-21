@@ -1,0 +1,288 @@
+#ifndef ZZ_FAST_IO_HPP
+#define ZZ_FAST_IO_HPP
+
+namespace fast_io {
+
+static constexpr std::size_t INPUT_SIZE = 1 << 16;
+static constexpr std::size_t OUTPUT_SIZE = 1 << 16;
+
+struct Input {
+    char buffer[INPUT_SIZE];
+    std::size_t pos = 0, len = 0;
+    bool good = true;
+
+    int get_char() {
+        if (pos == len) {
+            len = std::fread(buffer, 1, INPUT_SIZE, stdin);
+            pos = 0;
+            if (len == 0) return EOF;
+        }
+        return static_cast<unsigned char>(buffer[pos++]);
+    }
+
+    int skip_space() {
+        int c = get_char();
+        while (c != EOF && c <= ' ') c = get_char();
+        return c;
+    }
+
+    template<typename T>
+    Input& read_integer(T& x) {
+        int c = skip_space();
+        if (c == EOF) {
+            good = false;
+            return *this;
+        }
+
+        bool neg = false;
+        if (c == '-' || c == '+') {
+            neg = (c == '-');
+            c = get_char();
+        }
+
+        using U = std::make_unsigned_t<T>;
+        U value = 0;
+        while (c >= '0' && c <= '9') {
+            value = value * 10 + static_cast<U>(c - '0');
+            c = get_char();
+        }
+
+        if constexpr (std::is_signed_v<T>) {
+            x = neg ? static_cast<T>(U(0) - value) : static_cast<T>(value);
+        } else {
+            x = static_cast<T>(value);
+        }
+        return *this;
+    }
+
+    template<typename T, std::enable_if_t<std::is_integral_v<T> &&
+        !std::is_same_v<T, bool> && !std::is_same_v<T, char> &&
+        !std::is_same_v<T, signed char> && !std::is_same_v<T, unsigned char>, int> = 0>
+    Input& operator>>(T& x) {
+        return read_integer(x);
+    }
+
+    Input& operator>>(__int128_t& x) {
+        int c = skip_space();
+        if (c == EOF) {
+            good = false;
+            return *this;
+        }
+
+        bool neg = false;
+        if (c == '-' || c == '+') {
+            neg = (c == '-');
+            c = get_char();
+        }
+
+        __uint128_t value = 0;
+        while (c >= '0' && c <= '9') {
+            value = value * 10 + static_cast<unsigned>(c - '0');
+            c = get_char();
+        }
+        x = neg ? static_cast<__int128_t>(__uint128_t(0) - value) : static_cast<__int128_t>(value);
+        return *this;
+    }
+
+    Input& operator>>(__uint128_t& x) {
+        int c = skip_space();
+        if (c == EOF) {
+            good = false;
+            return *this;
+        }
+
+        if (c == '+') c = get_char();
+        x = 0;
+        while (c >= '0' && c <= '9') {
+            x = x * 10 + static_cast<unsigned>(c - '0');
+            c = get_char();
+        }
+        return *this;
+    }
+
+    Input& operator>>(bool& x) {
+        int v = 0;
+        read_integer(v);
+        x = (v != 0);
+        return *this;
+    }
+
+    Input& operator>>(char& x) {
+        int c = skip_space();
+        if (c == EOF) good = false;
+        else x = static_cast<char>(c);
+        return *this;
+    }
+
+    Input& operator>>(signed char& x) {
+        char c;
+        *this >> c;
+        if (good) x = static_cast<signed char>(c);
+        return *this;
+    }
+
+    Input& operator>>(unsigned char& x) {
+        char c;
+        *this >> c;
+        if (good) x = static_cast<unsigned char>(c);
+        return *this;
+    }
+
+    Input& operator>>(std::string& x) {
+        x.clear();
+        int c = skip_space();
+        if (c == EOF) {
+            good = false;
+            return *this;
+        }
+        while (c != EOF && c > ' ') {
+            x.push_back(static_cast<char>(c));
+            c = get_char();
+        }
+        return *this;
+    }
+
+    explicit operator bool() const {
+        return good;
+    }
+};
+
+struct Output {
+    char buffer[OUTPUT_SIZE];
+    std::size_t pos = 0;
+
+    ~Output() {
+        flush();
+    }
+
+    void flush() {
+        if (pos) {
+            std::fwrite(buffer, 1, pos, stdout);
+            pos = 0;
+        }
+    }
+
+    void put_char(char c) {
+        if (pos == OUTPUT_SIZE) flush();
+        buffer[pos++] = c;
+    }
+
+    void write_string(const char* s) {
+        while (*s) put_char(*s++);
+    }
+
+    void write_string(const std::string& s) {
+        for (char c : s) put_char(c);
+    }
+
+    template<typename T, std::enable_if_t<std::is_integral_v<T> &&
+        !std::is_same_v<T, bool> && !std::is_same_v<T, char> &&
+        !std::is_same_v<T, signed char> && !std::is_same_v<T, unsigned char>, int> = 0>
+    Output& operator<<(T x) {
+        using U = std::make_unsigned_t<T>;
+        U value;
+        if constexpr (std::is_signed_v<T>) {
+            if (x < 0) {
+                put_char('-');
+                value = U(0) - static_cast<U>(x);
+            } else {
+                value = static_cast<U>(x);
+            }
+        } else {
+            value = x;
+        }
+
+        char s[64];
+        int n = 0;
+        do {
+            s[n++] = static_cast<char>('0' + value % 10);
+            value /= 10;
+        } while (value);
+
+        while (n) put_char(s[--n]);
+        return *this;
+    }
+
+    Output& operator<<(__uint128_t value) {
+        char s[64];
+        int n = 0;
+        do {
+            s[n++] = static_cast<char>('0' + value % 10);
+            value /= 10;
+        } while (value);
+        while (n) put_char(s[--n]);
+        return *this;
+    }
+
+    Output& operator<<(__int128_t x) {
+        __uint128_t value;
+        if (x < 0) {
+            put_char('-');
+            value = __uint128_t(0) - static_cast<__uint128_t>(x);
+        } else {
+            value = static_cast<__uint128_t>(x);
+        }
+        return *this << value;
+    }
+
+    Output& operator<<(bool x) {
+        put_char(x ? '1' : '0');
+        return *this;
+    }
+
+    Output& operator<<(char x) {
+        put_char(x);
+        return *this;
+    }
+
+    Output& operator<<(signed char x) {
+        put_char(static_cast<char>(x));
+        return *this;
+    }
+
+    Output& operator<<(unsigned char x) {
+        put_char(static_cast<char>(x));
+        return *this;
+    }
+
+    Output& operator<<(const char* s) {
+        write_string(s);
+        return *this;
+    }
+
+    Output& operator<<(const std::string& s) {
+        write_string(s);
+        return *this;
+    }
+
+    Output& operator<<(float x) {
+        char s[64];
+        int n = std::snprintf(s, sizeof(s), "%g", static_cast<double>(x));
+        for (int i = 0; i < n; i++) put_char(s[i]);
+        return *this;
+    }
+
+    Output& operator<<(double x) {
+        char s[64];
+        int n = std::snprintf(s, sizeof(s), "%g", x);
+        for (int i = 0; i < n; i++) put_char(s[i]);
+        return *this;
+    }
+
+    Output& operator<<(long double x) {
+        char s[96];
+        int n = std::snprintf(s, sizeof(s), "%Lg", x);
+        for (int i = 0; i < n; i++) put_char(s[i]);
+        return *this;
+    }
+};
+
+inline Input in;
+inline Output out;
+
+} // namespace fast_io
+
+#define cin fast_io::in
+#define cout fast_io::out
+
+#endif // ZZ_FAST_IO_HPP

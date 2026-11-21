@@ -132,6 +132,14 @@ ccb A.cpp > A_precompiled.cpp
 | Trie | `<trie>` | [Documentation](docs/trie.md) |
 | van Emde Boas Tree | `<veb_tree>` | [Documentation](docs/van_emde_boas.md) |
 
+### I/O and Debugging
+
+| Utility | Header / file | Guide |
+| --- | --- | --- |
+| Fast buffered I/O | `<fast>` | [Documentation](docs/fast_io.md) |
+| Debug printing and recursion tracing | `<debug_headers/...>` | [Documentation](docs/debugging.md) |
+| Competitive programming template | `<slow>` | [Documentation](docs/slow_template.md) |
+
 ### Math
 
 | Topic | Header | Guide |
